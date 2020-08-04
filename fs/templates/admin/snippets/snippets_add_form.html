@@ -1,0 +1,43 @@
+{% extends "admin/change_form.html" %} {% load static %} {% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/tail.select-light-feather.min.css' %}" /> {% endblock %} {% block footer %} {{ block.super }}
+<div class='modal-bg'>
+    <div class="modal">
+        <h2>File System Interface</h2>
+        load the option tag
+    </div>
+</div>
+<script>
+    // inline styles/js for testing then add them onto the static files
+    function HideFields(form, fieldset_index) {;
+    }
+
+    function CreateFSButton(form, fieldset_index) {
+        /* form = document.querySelector('#file_form')
+        example of usage
+        <form action="" method="post" id="file_form" novalidate="">
+        <input type="hidden" name="csrfmiddlewaretoken" value="IyooqZbyEts2yOyuXAMo6YUGeqNEUHTfdBHBTO1qkWGQ81UsRR0VmYxckegWCaNs">
+        <div>
+        <fieldset class="module aligned ">
+            <h2>File System</h2>
+            </fieldset>
+        <fieldset class="module aligned ">...*/
+
+        let fieldset = form.querySelector('div').querySelectorAll('fieldset')[fieldset_index];
+        fieldset.innerHTML = `<div style="background-color:#79aec8;display: flex;">
+            <h2 style='flex:1'>File System</h2>
+            <button class="modal-btn">Add File</button></div>`;
+
+        fieldset.querySelector('button').addEventListener("click", function(event) {
+            event.preventDefault();
+            FSpopup();
+        }, false);
+    }
+    CreateFSButton(document.querySelector('#file_form'), 0);
+</script>
+<script>
+    alert('worked')
+    tail.select('#id_authors', {
+        search: true,
+    });
+</script>
+{% endblock %}

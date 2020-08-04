@@ -1,0 +1,181 @@
+/*?defaults*/
+
+.button {
+    cursor: pointer;
+    background-color: #fff;
+    color: #777;
+    transition: background-color .2s ease-out
+}
+
+.button:hover {
+    background-color: #f2a4a8;
+    color: whitesmoke !important;
+}
+
+.card-image-center {
+    max-height: 100px;
+    max-width: 100px;
+    margin: 0 1rem 0 1rem;
+}
+
+
+/*?navbar extra syles*/
+
+.brand-logo img {
+    position: relative;
+    object-fit: scale-down;
+    margin-top: 0.5rem;
+    margin-left: 1rem;
+    width: 60px;
+}
+
+.brand-logo::after {
+    content: 'Advisoris';
+    font-size: 1.5rem;
+    color: whitesmoke;
+    position: absolute;
+    opacity: 0;
+    padding-left: 0.5rem;
+    transition: opacity 0.5s;
+}
+
+@media (min-width:992.5px) {
+    .brand-logo:hover::after {
+        opacity: 1;
+    }
+}
+
+
+/*breadcrumbs*/
+
+nav.clean {
+    background: none;
+    box-shadow: none;
+}
+
+nav.clean .breadcrumb {
+    color: black;
+}
+
+nav.clean .breadcrumb:before {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+nav.clean .breadcrumb:last-child {
+    color: #ee6e73;
+}
+
+@media (max-width: 992px) {
+    .breadcrumb {
+        display: none !important;
+    }
+}
+
+
+/*?Animations*/
+
+@-webkit-keyframes fadeRight {
+    0% {
+        -webkit-transform: translateX(30px);
+        transform: translateX(30px);
+        opacity: 0
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1
+    }
+}
+
+@keyframes fadeRight {
+    0% {
+        -webkit-transform: translateX(30px);
+        transform: translateX(30px);
+        opacity: 0
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1
+    }
+}
+
+.animate.fadeRight {
+    -webkit-animation: fadeRight;
+    animation: fadeRight;
+    -webkit-animation-duration: 1.5s;
+    animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fadeUp {
+    0% {
+        -webkit-transform: translateY(30px);
+        transform: translateY(30px);
+        opacity: 0
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1
+    }
+}
+
+@keyframes fadeUp {
+    0% {
+        -webkit-transform: translateY(30px);
+        transform: translateY(30px);
+        opacity: 0
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1
+    }
+}
+
+.animate.fadeUp {
+    -webkit-animation: fadeUp;
+    animation: fadeUp;
+    -webkit-animation-duration: 1.5s;
+    animation-duration: 1.5s;
+}
+
+
+/*?background gradients*/
+
+.gradient-45deg-red-pink {
+    background: -webkit-linear-gradient(45deg, #ff5252, #f48fb1)!important;
+    background: linear-gradient(45deg, #ff5252, #f48fb1)!important
+}
+
+.gradient-45deg-red-pink.gradient-shadow {
+    box-shadow: 0 6px 20px 0 rgba(244, 143, 177, .5)!important
+}
+
+
+/*? numbers cards*/
+
+.background-round {
+    padding: 15px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .18);
+}
+
+.rounded {
+    border-radius: 10px !important;
+}
+
+
+/*? extras*/
+
+.padding-4 {
+    padding: 4%!important
+}
+
+.min-height-100 {
+    min-height: 100px!important
+}
+
+.top-inherit {
+    top: inherit !important;
+}

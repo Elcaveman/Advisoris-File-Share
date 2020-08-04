@@ -1,0 +1,43 @@
+<!-- Dropdown Structure -->
+{% load static %}
+<ul id="dropdown1" class="dropdown-content red-text top-inherit">
+    <li><a href="#" class='red-text text-lighten-1'>Contact us</a></li>
+    <li class="divider"></li>
+    <li><a href="/logout/" class='red-text text-lighten-1'>Log out</a></li>
+</ul>
+<nav>
+    <div class="nav-wrapper">
+
+        <a href="#!" class="brand-logo scale-transition" data='logo'>
+            <!-- <img src="https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/logo/materialize-logo.png" alt="Logo"></a> -->
+            <img src="{% static 'img/striped logo trans.png' %}" alt="Logo"></a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down animate fadeRight" style="max-height: 65px;">
+            <li id='overview'><a href="/" >Overview</a></li>
+            <li id='docs'><a href="/files/">Documents</a></li>
+            <li><a class="dropdown-trigger " data-target="dropdown1"><i class="material-icons">more_vert</i><i class="material-icons right">arrow_drop_down</i></a></li>
+
+        </ul>
+    </div>
+</nav>
+
+<ul class="sidenav" id="mobile-demo" style="width: 200px">
+    <li><a href="/" id='overview'>Overview</a></li>
+    <li><a href="/files/" id='docs'>Documents</a></li>
+    <li class="divider"></li>
+    <li><a href="#!" class='red-text text-lighten-1'>Contact us</a></li>
+    <li><a href="/logout/" class='red-text text-lighten-1'>Log out</a></li>
+
+</ul>
+
+<script>
+    console.log(window.location.pathname)
+    if (window.location.pathname == '/') {
+        document.getElementById('overview').classList.add('active')
+        document.getElementById('docs').classList.remove('active')
+    }
+    if (window.location.pathname == '/files/') {
+        document.getElementById('docs').classList.add('active')
+        document.getElementById('overview').classList.remove('active')
+    }
+</script>

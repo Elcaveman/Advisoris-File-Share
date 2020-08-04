@@ -1,0 +1,78 @@
+{% extends 'user/base.html' %} {% load static %}{% load i18n %} {% block extra_style %}{% endblock extra_style %} {% block content %}
+
+<main>
+    <div class="wrapper padding-4">
+        {% block breadcrumbs %}
+        <nav class="clean">
+            <div class="nav-wrapper">
+                <div class="col s12" data='wrap_breadcrumbs'>
+                    <!-- <a href="#!" class="breadcrumb">Root</a> -->
+                </div>
+            </div>
+        </nav>
+        {% endblock breadcrumbs %}
+        <div class="divider"></div>
+        {% block dirs %}
+        <div>
+            <div>
+                <h5>{% trans 'Directories' %}</h5>
+            </div>
+            <div class="divider" style="margin: 2rem 0 2rem 0;"></div>
+            <div>
+                <div class="row animate fadeUp" data='wrap_folders'>
+<!-- 
+                    <div class="col s12 m4 l2">
+                        <div class="card  rounded button" style="display: flex">
+                            <div><i class="material-icons" style="padding:15px;">folder</i></div>
+                            <div>
+                                <p style="padding:2px;">item1</p>
+                            </div>
+                        </div>
+                    </div> -->
+                    
+                </div>
+            </div>
+        </div>
+        {% endblock dirs %}
+        <div class="divider"></div>
+        {% block files %}
+        <div>
+            <div>
+                <div>
+                    <h5>{% trans 'Files' %}</h5>
+                </div>
+            </div>
+            <div class="divider" style="margin: 2rem 0 2rem 0;"></div>
+            <div>
+                <div class="row animate fadeUp" data='wrap_files'>
+                    <!-- <div>
+                    <div class="col s6 m3 l2">
+                        <div class="card">
+                            <div class="card-image" style="max-height: 100px;max-width: 100px;">
+                                <img src="{% static 'img/pdf.jfif' %}" class="card-image-center">
+                            </div>
+                            <div class="card-content">
+                                <p>File1 about that thing</p>
+                            </div>
+                            <div class="card-action">
+                                <a href="#">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                    </div> -->
+                    
+                </div>
+            </div>
+        </div>
+        {% endblock files %}
+
+
+    </div>
+</main>
+
+
+
+
+{% endblock content %} {% block extra_scripts %}
+<script src="{% static 'js/Admin FS handler.js' %}"></script>
+{% endblock extra_scripts %}

@@ -1,0 +1,130 @@
+{% extends 'user/base.html' %} {% load static %} {% block extra_style %} {% endblock extra_style %} {% block content %}
+<main style="margin: 1rem;">
+    <div id='data-cards'>
+        <div id="card-stats" class="pt-0">
+            <div class="row">
+                <div class="col s12 m6 l6 xl3">
+                    <div class="card gradient-45deg-red-pink gradient-shadow min-height-100 white-text animate fadeRight">
+                        <div class="padding-4">
+                            <div class="row">
+                                <div class="col s12 m12">
+                                    <i class="material-icons background-round mt-5">attach_money</i>
+                                    <h5 id='IF' style="float: right;">0</h5>
+                                </div>
+                                <div class="col s12 m12">
+                                    <p>Financial intermediary(IF)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l6 xl3">
+                    <div class="card gradient-45deg-red-pink gradient-shadow min-height-100 white-text animate fadeRight">
+                        <div class="padding-4">
+                            <div class="row">
+                                <div class="col s12 m12">
+                                    <i class="material-icons background-round mt-5">business_center</i>
+                                    <h5 id='RDC' style="float: right;">0</h5>
+                                </div>
+                                <div class="col s12 m12">
+                                    <p>RDC</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l6 xl3">
+                    <div class="card gradient-45deg-red-pink gradient-shadow min-height-100 white-text animate fadeRight">
+                        <div class="padding-4">
+                            <div class="row">
+                                <div class="col s12 m12">
+                                    <i class="material-icons background-round mt-5">attach_money</i>
+                                    <h5 id='TP' style="float: right;">0</h5>
+                                </div>
+                                <div class="col s12 m12">
+                                    <p>Professional taxes(TP)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l6 xl3">
+                    <div class="card gradient-45deg-red-pink gradient-shadow min-height-100 white-text animate fadeRight">
+                        <div class="padding-4">
+                            <div class="row">
+                                <div class="col s12 m12">
+                                    <i class="material-icons background-round mt-5">business_center</i>
+                                    <h5 id='ICE' style="float: right;">0</h5>
+                                </div>
+                                <div class="col s12 m12">
+                                    <p>Common Company Identifier(ICE)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="charts-wrapper">
+        <div class="row">
+            <div class="col s12 m12 l6">
+                <div class="card animate fadeUp">
+                    <div class="chart-container">
+                        <!-- Chart wrapper -->
+                        <canvas id="canvas1" aria-label="Your browser does not support the canvas element." role="img"></canvas>
+                        <button id="randomizeData1">Randomize Data</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m12 l6">
+                <div class="card animate fadeUp">
+                    <div class="chart-container">
+                        <canvas id="canvas2" aria-label="Your browser does not support the canvas element." role="img"></canvas>
+                        <button id="randomizeData2">Randomize Data</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m 12 l6">
+                <div class="card animate fadeUp">
+                    <div class="chart-container">
+                        <canvas id="chart-area" aria-label="Your browser does not support the canvas element." role="img"></canvas>
+                        <button id="randomizeData3">Randomize Data</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m 12 l6">
+                <div class="card animate fadeUp">
+                    <div class="chart-container">
+                        <canvas id="chart-area2" aria-label="Your browser does not support the canvas element." role="img"></canvas>
+                        <button id="randomizeData4">Randomize Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</main>
+
+{% endblock content %} {% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+
+<script>
+    function counter(elemnt_id , end_value){
+        const options = {
+            useEasing: false,
+            separator: ' ',
+            decimal: ',',
+            suffix:'dh',
+        };
+        let count = new CountUp(elemnt_id,0,end_value,2,1.5, options);
+        count.start();
+    }
+    counter('IF',{{ user.IF }});
+    counter('RDC',{{ user.RDC }});
+    counter('TP',{{ user.TP }});
+    counter('ICE',{{ user.ICE }});
+</script>
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock extra_scripts %}

@@ -1,0 +1,298 @@
+{% extends "admin/base_site.html" %}{% load static %} {% block extrastyle %}
+<!-- <link rel="stylesheet" href="{% static 'css/tail.select-light-feather.min.css' %}"> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" class="css">
+<style>
+    #redo::after {
+        content: 'Redo';
+        display: block;
+    }
+    
+    #redo:hover::after {
+        size: 50px;
+    }
+    
+    #undo::after {
+        content: 'Undo';
+        display: block;
+    }
+    
+    #undo:hover::after {
+        size: 50px;
+    }
+    
+    #dir_add::after {
+        content: 'add folder';
+        display: block;
+    }
+    
+    #dir_add:hover::after {
+        size: 50px;
+    }
+    
+    #dir_del::after {
+        content: 'delete folder';
+        display: block;
+    }
+    
+    #dir_del:hover::after {
+        size: 50px;
+    }
+    
+    #file_add::after {
+        content: 'add folder';
+        display: block;
+    }
+    
+    #file_add:hover::after {
+        size: 50px;
+    }
+    
+    #file_del::after {
+        content: 'delete folder';
+        display: block;
+    }
+    
+    #file_del:hover::after {
+        size: 50px;
+    }
+</style>
+
+{% endblock %} {% block content %}
+<form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
+    {% csrf_token %}
+
+    <div class="related-widget-wrapper">
+        <label for="id_select"> Client: </label>
+        <select name="owner_id" required="" id="id_owner_id" style="
+        margin-left: 20px;
+    ">
+                <option value="">JS here</option>
+            </select>
+        <!-- link for update -->
+        <a class="related-widget-wrapper-link change-related" id="change_id_owner_id" data-href-template="/admin/user/client/__fk__/change/?_to_field=id&amp;_popup=1" title="Change selected client" href="/admin/user/client/1/change/?_to_field=id&amp;_popup=1"><img src="/static/admin/img/icon-changelink.svg" alt="Change"></a>
+        <!-- link for add -->
+        <a class="related-widget-wrapper-link add-related" id="add_id_owner_id" href="/admin/user/client/add/?_to_field=id&amp;_popup=1" title="Add another client"><img src="/static/admin/img/icon-addlink.svg" alt="Add"></a>
+    </div>
+
+    <div class="related-widget-wrapper hidden">
+        <div class='interface'>
+            <div class="path-wrapper">
+                <div>
+                    <button id="prev" class="waves-effect waves-light btn"><i class="fa fa-arrow-left"></i></button>
+                    <button id="post" class="waves-effect waves-light btn"><i class="fa fa-arrow-right"></i></button>
+                </div>
+                <div>
+                    <p id="path">root/</p>
+                </div>
+            </div>
+            <div class="action-buttons-wrapper">
+                <div>
+                    <button id="file_add" class="waves-effect waves-light btn"><i class="fa fa-plus"></i></button>
+                    <button id="file_del" class="waves-effect waves-light btn"><i class="fa fa-minus"></i></button>
+
+                    <button id="dir_add" class="waves-effect waves-light btn"><i class="fas fa-folder-plus"></i></button>
+
+                    <button id="dir_del" class="waves-effect waves-light btn"><i class="fas fa-folder-minus"></i></button>
+
+                    <button id="undo" class="waves-effect waves-light btn"><i class="fa fa-undo"></i></button>
+
+                    <button id="redo" class="waves-effect waves-light btn"><i class="fas fa-redo"></i></button>
+                </div>
+            </div>
+
+            <div class="search-box-wrappper">
+                <input type="Search">
+            </div>
+            <div class="table">
+                <table>
+                    <thead>
+                        <td>Name</td>
+                        <td>Year</td>
+                        <td>Type</td>
+                        <td>Size</td>
+                    </thead>
+                    <tbody id="FS">
+                        <tr>
+                            <td>
+                                <i class="fa fa-folder"></i>
+                                <span>folder1</span>
+                            </td>
+                            <td>
+                                2020
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <i class="fa fa-folder"></i>
+                                <span>folder2</span>
+                            </td>
+                            <td>
+                                2020
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <i class="fa fa-folder"></i>
+                                <span>folder3</span>
+                            </td>
+                            <td>
+                                2020
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <i class="fa fa-file-pdf"></i>
+                                <span>file 1</span>
+                            </td>
+                            <td>
+                                2019
+                            </td>
+                            <td>
+                                PDF
+                            </td>
+                            <td>
+                                1Mo
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i class="fas fa-file-pdf"></i>
+                                <span>file 1</span>
+                            </td>
+                            <td>
+                                2019
+                            </td>
+                            <td>
+                                PDF
+                            </td>
+                            <td>
+                                1Mo
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <i class="fas fa-file-pdf"></i>
+                                <span>file 1</span>
+                            </td>
+                            <td>
+                                2019
+                            </td>
+                            <td>
+                                PDF
+                            </td>
+                            <td>
+                                1Mo
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" value="Save" name="_save" class="waves-effect waves-light btn">Save</button>
+        </div>
+    </div>
+    </div>
+
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<!-- <script type="text/javascript" src="{% static 'js/tail.select.min.js' %}"></script> -->
+
+<script>
+    /*/css styling for later for later*/
+    /*class JSONTree {
+        //the system is short sighted only sees the node before it and after it
+    constructor(tree) {
+        this.max_nodes = 100
+        this.action_list = [];
+        this.cache_list = [];
+        this.registred_id_list = [];
+        this.utils_tree = utils_init_tree(tree);
+    }
+    utils_init_tree(tree) {
+        if (tree === null) {
+            this.registred_id_list.length = 0; // deletes all registred id's  
+            return {
+                id: 0,
+                parent_node: 0,
+                file_pool: file_pool,
+                display: 'root',
+                subtrees: []
+            }
+        } else {
+            utils_init_registred_id_list(tree)
+            this.utils_tree = [...tree]; //copy of tree
+        }
+    }
+
+    utils_init_registred_id_list(tree) {
+        this.registred_id_list.push(tree.parent_node);
+        if (tree.subtrees.length != 0) {
+            for (let i = 0; i < tree.subtrees.length - 1; i++) {
+                utils_init_registred_id_list(tree.subtrees[i]);
+            }
+        }
+    }
+
+    utils_node_template(parent_node, file_pool, display) {
+        if (this.registred_id_list.length == this.max_nodes) {
+            return {};
+        } else {
+            let node_id = Math.floor(Math.random() * this.max_nodes);
+            while (node_id in this.registred_id_list) {
+                node_id = Math.floor(Math.random() * this.max_nodes);
+            }
+            return {
+                id: node_id,
+                parent_node: parent_id, // parent_id = 0 for the root
+                file_pool: file_pool,
+                display: display,
+                subtrees: []
+            }
+        }
+
+    }
+
+    action_create_node(tree, display) {
+        //filepool isn't asigned on creation
+        tree.subtrees.push(utils_node_template(tree.parent_node, null, display));
+        this.action_list.push(`action_create_node({tree,${display})`);
+    }
+
+    action_delete_node() * /*/
+
+    let headers = {
+        'Content-Type': 'application/json'
+    };
+    fetch('/api/ClientInfo/all', {
+            headers,
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        });
+</script>
+<script>
+    tail.select('#search box', {
+        search: true,
+    });
+    tail.select('#id_owner_id', {});
+</script>
+
+{% endblock content %}
