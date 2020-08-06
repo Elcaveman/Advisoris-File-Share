@@ -1,10 +1,6 @@
 <!-- Dropdown Structure -->
 {% load static %}
-<ul id="dropdown1" class="dropdown-content red-text top-inherit">
-    <li><a href="#" class='red-text text-lighten-1'>Contact us</a></li>
-    <li class="divider"></li>
-    <li><a href="/logout/" class='red-text text-lighten-1'>Log out</a></li>
-</ul>
+
 <nav>
     <div class="nav-wrapper">
 
@@ -13,10 +9,15 @@
             <img src="{% static 'img/striped logo trans.png' %}" alt="Logo"></a>
         <a href="#" data-target="mobile-demo" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
         <ul class="right hide-on-med-and-down animate fadeRight" style="max-height: 65px;">
-            <li id='overview'><a href="/" >Overview</a></li>
+            <li id='overview'><a href="/">Overview</a></li>
             <li id='docs'><a href="/files/">Documents</a></li>
-            <li><a class="dropdown-trigger " data-target="dropdown1"><i class="material-icons">more_vert</i><i class="material-icons right">arrow_drop_down</i></a></li>
-
+            <li>
+                <a class="dropdown-trigger" data-target="dropdown1"><i class="material-icons">more_vert</i><i class="material-icons right">arrow_drop_down</i></a></li>
+            <ul id="dropdown1" class="dropdown-content red-text top-inherit">
+                <li><a href="#" class='red-text text-lighten-1'>Contact us</a></li>
+                <li class="divider"></li>
+                <li><a href="/logout/" class='red-text text-lighten-1'>Log out</a></li>
+            </ul>
         </ul>
     </div>
 </nav>

@@ -20,7 +20,7 @@
             <div class="divider" style="margin: 2rem 0 2rem 0;"></div>
             <div>
                 <div class="row animate fadeUp" data='wrap_folders'>
-<!-- 
+                    <!-- 
                     <div class="col s12 m4 l2">
                         <div class="card  rounded button" style="display: flex">
                             <div><i class="material-icons" style="padding:15px;">folder</i></div>
@@ -29,15 +29,15 @@
                             </div>
                         </div>
                     </div> -->
-                   
-                    
+
+
                 </div>
             </div>
         </div>
         {% endblock dirs %}
         <div class="divider"></div>
         {% block files %}
-        <div id='files_container'> 
+        <div id='files_container'>
             <div>
                 <div>
                     <h5>{% trans 'Files' %}</h5>
@@ -60,9 +60,9 @@
                             </div>
                         </div>
                     </div> -->
-                    
-                    
-                    
+
+
+
                 </div>
             </div>
         </div>
@@ -76,8 +76,13 @@
 
 
 {% endblock content %} {% block extra_scripts %}
-<script>const pdf_image_url = "{% static 'img/pdf.jfif' %}"</script>
-<script src="{% static 'js/Admin FS handler.js' %}"></script>
-<script>const h = new InterfaceHandler({{ request.user.id }},'{{ request.user.is_staff }}');</script>
+<script>
+    const pdf_image_url = "{% static 'img/pdf.jfif' %}"
+</script>
+<script src="{% static 'js/FS handler.js' %}"></script>
+<script src="{% static 'js/UserUI.js' %}"></script>
+<script>
+    const h = new InterfaceHandler('{{request.user.id}}');
+</script>
 
 {% endblock extra_scripts %}

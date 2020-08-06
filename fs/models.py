@@ -24,6 +24,8 @@ class FilePool(models.Model):
     
 
 class File(models.Model):
+    class Meta:
+        unique_together = ('filepool', 'display_name',)
     #important information
     filepool = models.ForeignKey("FilePool", verbose_name="File Pool", on_delete=models.CASCADE,related_name='files')
     file_path = models.FileField(verbose_name='File',upload_to=file_directory_path)

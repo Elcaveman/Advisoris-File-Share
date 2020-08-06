@@ -40,9 +40,9 @@ class FileManagementAdmin(admin.ModelAdmin):
     
     readonly_fields = ('creation_date',)
 
-    # change_list_template = 'admin/snippets/change_list.html'
-    # add_form_template = 'admin/snippets/add_form.html'
-    # change_form_template = 'admin/snippets/change_form.html'
+    change_list_template = 'admin/snippets/change_list.html'
+    add_form_template = 'admin/snippets/add_form.html'
+    change_form_template = 'admin/snippets/change_form.html'
 
 # Register your models here.
 class ClientAdmin(UserAdmin):

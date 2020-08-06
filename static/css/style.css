@@ -1,7 +1,14 @@
 /*?defaults*/
-.hidden{
-    display:none;
+
+
+/* .show {
+    display: block;
 }
+
+.dropdown-trig {
+    cursor: pointer;
+} */
+
 .button {
     cursor: pointer;
     background-color: #fff;
@@ -67,11 +74,13 @@ nav.clean .breadcrumb:last-child {
     color: #ee6e73;
 }
 
+
+/* 
 @media (max-width: 992px) {
     .breadcrumb {
         display: none !important;
     }
-}
+} */
 
 
 /*?Animations*/
@@ -180,4 +189,74 @@ nav.clean .breadcrumb:last-child {
 
 .top-inherit {
     top: inherit !important;
+}
+
+
+/*?admin specific styles*/
+
+#redo::after {
+    content: 'Redo';
+    display: block;
+}
+
+#redo:hover::after {
+    size: 50px;
+}
+
+#undo::after {
+    content: 'Undo';
+    display: block;
+}
+
+#undo:hover::after {
+    size: 50px;
+}
+
+#dir_add::after {
+    content: 'add folder';
+    display: block;
+}
+
+#dir_add:hover::after {
+    size: 50px;
+}
+
+#dir_del::after {
+    content: 'delete folder';
+    display: block;
+}
+
+#dir_del:hover::after {
+    size: 50px;
+}
+
+#file_add::after {
+    content: 'add folder';
+    display: block;
+}
+
+#file_add:hover::after {
+    size: 50px;
+}
+
+#file_del::after {
+    content: 'delete folder';
+    display: block;
+}
+
+#file_del:hover::after {
+    size: 50px;
+}
+
+#edit::after {
+    content: 'edit element';
+    display: block;
+}
+
+.navigation {
+    display: flex;
+}
+
+.utils-form {
+    display: none;
 }
