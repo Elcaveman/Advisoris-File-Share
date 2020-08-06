@@ -19,8 +19,6 @@ def no_user_required(view):
 
 @login_required
 def home(request):
-    if request.user.is_staff:
-        return redirect('/admin/')
     return render(request ,'user/index.html')
 
 @no_user_required

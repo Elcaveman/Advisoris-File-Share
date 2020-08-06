@@ -1,5 +1,7 @@
 /*?defaults*/
-
+.hidden{
+    display:none;
+}
 .button {
     cursor: pointer;
     background-color: #fff;
