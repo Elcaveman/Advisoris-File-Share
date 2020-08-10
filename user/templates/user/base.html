@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{% static 'img/striped logo trans.png' %}" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="{% static 'css/material icons.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/materialize.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% block extra_style %} {% endblock extra_style %}
     <title>Advisoris file System</title>
 </head>
@@ -15,7 +15,7 @@
 <body>
     {% include 'user/includes/navbar.html' %} {% block content %} {% endblock content %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="{% static 'js/materialize.min.js' %}"></script>
     <script src="{% static 'js/countUP.js' %}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

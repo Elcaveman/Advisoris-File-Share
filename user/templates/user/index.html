@@ -111,20 +111,26 @@
 <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
 
 <script>
-    function counter(elemnt_id , end_value){
-        const options = {
-            useEasing: false,
-            separator: ' ',
-            decimal: ',',
-            suffix:'dh',
-        };
-        let count = new CountUp(elemnt_id,0,end_value,2,1.5, options);
-        count.start();
+    function counter(element_id , end_value){
+        let t = new Number(end_value)
+        if (t.toString()!=="NaN"){
+            const options = {
+                        useEasing: false,
+                        separator: ' ',
+                        decimal: ',',
+                        suffix:'dh',
+                    };
+            let count = new CountUp(element_id,0,end_value,2,1.5, options);
+            count.start();
+        }
+        else{
+            document.querySelector(`#${element_id}`).innerText = end_value;
+        }
     }
-    counter('IF',{{ user.IF }});
-    counter('RDC',{{ user.RDC }});
-    counter('TP',{{ user.TP }});
-    counter('ICE',{{ user.ICE }});
+    counter('IF','{{ user.IF }}');
+    counter('RDC','{{ user.RDC }}');
+    counter('TP','{{ user.TP }}');
+    counter('ICE','{{ user.ICE }}');
 </script>
 <script src="{% static 'js/charts.js' %}"></script>
 {% endblock extra_scripts %}

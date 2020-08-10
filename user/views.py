@@ -17,7 +17,7 @@ def no_user_required(view):
     return wrapper
 
 
-@login_required
+@login_required(login_url='/login/')
 def home(request):
     return render(request ,'user/index.html')
 

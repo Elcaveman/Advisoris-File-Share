@@ -13,6 +13,12 @@ class FilePoolSerializer(serializers.ModelSerializer):
         fields = ['id' ,'url', 'path' , 'owner']
 
 class FileSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()#in octet
+    type = serializers.SerializerMethodField()
     class Meta:
         model = File
-        fields = ['id' ,'url','display_name','file_path','filepool' , 'year' ,'creation_date']
+        fields = ['id' ,'url','display_name','file_path','size','type','filepool' , 'year' ,'creation_date']
+    def get_size(self,obj):
+        return obj.size
+    def get_type(self,obj):
+        return obj.type

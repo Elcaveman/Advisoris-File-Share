@@ -4,7 +4,7 @@ from django.db import models
 #helper functions
 def file_directory_path(instance, filename):
         # file will be uploaded to MEDIA_ROOT/uploads/user_<id>/<filename>
-        return f'uploads/user_{instance.get_user.id}/{instance.year}/{filename}'
+        return f'uploads/{instance.get_user.id}/{instance.creation_date.year}/{filename}'
 
 class FilePool(models.Model):
     #node_code is the id of the FilePool since it auto increments and never change on delete
@@ -21,6 +21,8 @@ class FilePool(models.Model):
         #better use of this is to delete the pool id from the node
         if self.file_count() == 0:
             self.delete()
+            return True
+        return False
     
 
 class File(models.Model):
@@ -44,8 +46,29 @@ class File(models.Model):
             #the .split('.')[0] gets rid of the extension
             return self.file_path.name.split('/')[-1].split('.')[0]
         return self.display_name
+    @property
+    def size(self):
+        x = self.file_path.size
+        y = 512000
+        if x < y:
+            value = round(x/1000, 2)
+            ext = ' kb'
+        elif x < y*1000:
+            value = round(x/1000000, 2)
+            ext = ' Mb'
+        else:
+            value = round(x/1000000000, 2)
+            ext = ' Gb'
+        return str(value)+ext
+        
+    @property
+    def type(self):
+        extension = self.file_path.path.split('.')[-1]
+        return extension
+        
     def __str__(self):
         return self.filename
     def delete(self,*args,**kwargs):
         self.file_path.delete()
         super().delete(*args,**kwargs)
+    

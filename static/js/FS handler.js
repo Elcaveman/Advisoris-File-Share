@@ -72,117 +72,202 @@ function assemble_path(list, start, end) {
     };
 })(); //instant call
 
+// UT APIHandler DOne!!
 class APIHandler {
     constructor() {
         this.URLS = {
             manage_clients: '/api/clients/',
             manage_filepools: '/api/filepools/',
             manage_files: '/api/files/',
+            clean_filepools:'/api/filepool_cleaner/'
         };
         //remember to use ... (spread operator when using default URls)
     }
     async utils_fetch(url, request_method, body_data = null) {
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+        function getCookie(name) {
+            //example: to get csrf Token name must be set to 'csrftoken'
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
                 }
-                return cookieValue;
             }
-            try {
-                if (request_method == 'GET') {
-                    let headers = {
-                        'Content-Type': 'application/json'
-                    };
-                    const response = await fetch(url, { headers, });
-                    const response_json = await response.json();
-
-                    return response_json;
-                } else if (request_method == 'DELETE') {
-                    const response = await fetch(url, { method: 'DELETE', })
-                    return true;
-                } else if (request_method == 'POST' || request_method == 'PUT') {
-                    const csrftoken = getCookie('csrftoken');
-                    const defaults = {
-                        'method': 'POST',
-                        'credentials': 'same-origin',
-                        'headers': new Headers({
-                            'X-CSRFToken': csrftoken,
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }),
-                        'body': JSON.parse(JSON.stringify(body_data)),
-                    };
-                    const response = await fetch(url, defaults);
-                    return true;
-                }
-            } catch (err) { alert(err); return false }
+            return cookieValue;
         }
+        try {
+            if (request_method == 'GET') {
+                let headers = {
+                    'Content-Type': 'application/json'
+                };
+                const response = await fetch(url, { headers, });
+                const response_json = await response.json();
+                return response_json;
+            } else if (request_method == 'DELETE') {
+                const csrftoken_ = getCookie('csrftoken');
+                const defaults = {
+                    'method': 'DELETE',
+                    'credentials': 'same-origin',
+                    'headers': new Headers({
+                        'X-CSRFToken': csrftoken_,
+                    }),
+                };
+                const response = await fetch(url, defaults);
+                return true;
+
+            } else if (request_method == 'POST' || request_method == 'PUT') {
+                const csrftoken_ = getCookie('csrftoken');
+                const urlencoded = new URLSearchParams(JSON.stringify(body_data));
+                const defaults = {
+                    'method': request_method,
+                    'credentials': 'same-origin',
+                    'headers': new Headers({
+                        'X-CSRFToken': csrftoken_,
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    }),
+                    'body': urlencoded,
+                };
+                const response = await fetch(url, defaults);
+                return true;
+            }
+        } catch (err) { alert(err); return false }
+    }
         //managing clients
-    async get_client(client_id) {
-        const url = `${this.URLS.manage_clients}${client_id}/`;
-        const get_response = await this.utils_fetch(url, 'GET');
-        return get_response;
+    async get_client(client_id=null) {
+        const url = client_id?`${this.URLS.manage_clients}${client_id}/`:this.URLS.manage_clients;
+        try {
+            const response = await this.utils_fetch(url, 'GET');
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
+        
     }
     async update_file_tree(json_file_tree, client_id) {
             const url = `${this.URLS.manage_clients}${client_id}/`;
-            const get_response = this.get_client(client_id);
-            get_response.file_tree = json_file_tree;
-            const maj_response = this.utils_fetch(url, 'PUT', get_response);
-            return maj_response;
+            try {
+                const owner = await this.get_client(client_id);
+                owner.file_tree = json_file_tree;
+                const response = this.utils_fetch(url, 'PUT', owner);
+                return response;
+
+            } catch (error) {
+                M.toast({html:error,classes:'red rounded' , displatLength:2000});
+            }
+            
+            
         }
         //managing filepools
     async get_filepool(filepool_id) {
         const url = `${this.URLS.manage_filepools}${filepool_id}/`;
-        const get_response = await this.utils_fetch(url, 'GET');
-        return get_response;
+        try {
+            const response = await this.utils_fetch(url, 'GET');
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
     }
 
-    async create_filepool(client_id, path) {
+    async create_filepool(owner, path) {
         const url = this.URLS.manage_filepools;
-        const response = await this.utils_fetch(url, 'POST', { 'client_id': client_id, 'path': path });
-        return response;
+        try {
+            const response = await this.utils_fetch(url, 'POST', { 'owner': client_id, 'path': path });
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
     }
 
     async delete_filepool(filepool_id) {
             url = `${this.URLS.manage_filepools}${filepool_id}/`;
-            const response = await this.utils_fetch(url, 'DELETE');
-            return response;
+            try {
+                const response = await this.utils_fetch(url, 'DELETE');
+                return response;
+            } catch (error) {
+                M.toast({html:error,classes:'red rounded' , displatLength:2000});
+            }
+            
         }
         //managing files
     async get_file(file_id) {
         const url = `${this.URLS.manage_files}${file_id}/`;
-        const get_response = await this.utils_fetch(url, 'GET');
-        return get_response;
+        try {
+            const response = await this.utils_fetch(url, 'GET');
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
     }
 
     async get_files_by_filepool(filepool) {
         if (filepool != 0) {
-            const url = `/api/files/?filepool=${filepool}&year=`;
-            const get_response = await this.utils_fetch(url, 'GET');
-            return get_response;
+            const url = `${this.URLS.manage_files}?filepool=${filepool}&year=`;
+            try {
+                const response = await this.utils_fetch(url, 'GET');
+                return response;
+            } catch (error) {
+                M.toast({html:error,classes:'red rounded' , displatLength:2000});
+            }
         }
         return [];
     }
 
-    async create_file() {
-        //TODO: file input + get it's data using DOM then passing it to fetch body
+    async create_file(display_name , file , filepool_id , year) {
+        const url = this.URLS.manage_files;
+        try {
+            const response = await this.utils_fetch(url, 'POST',{
+                "display_name": display_name,
+                "file_path": file,
+                "filepool": filepool_id,
+                "year": year
+            });
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
     }
-    async update_file(file_id, display_name = null, DOM_file_input_id = null, filepool = null) {
+    async update_file(file_id,current_fileBlob,display_name=null , fileBlob=null , filepool_id=null , year=null) {
         // TODO: load current file path into the file_input
+        const url = `${this.URLS.manage_files}${file_id}/`;
+        const data = {};
+        //append to the data object
+        display_name?data['display_name']=display_name:false;
+        fileBlob?data['file_path']=fileBlob:data['file_path']=current_fileBlob;
+        filepool_id?data['filepool']=filepool_id:false;
+        year?data['year']=year:false;
+        
+        try {
+            const response = await this.utils_fetch(url, 'POST',data);
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
+        
     }
     async delete_file(file_id) {
         url = `${this.URLS.manage_files}${file_id}/`;
-        const response = await this.utils_fetch(url, 'DELETE');
+        try {
+            const response = await this.utils_fetch(url, 'DELETE');
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
         return response;
+    }
+    async clean_filepool(filepool_id){
+        url = `${this.URLS.clean_filepools}${filepool_id}/`
+        try {
+            const response = await this.utils_fetch(url,'DELETE');
+            return response;
+        } catch (error) {
+            M.toast({html:error,classes:'red rounded' , displatLength:2000});
+        }
+        
     }
 }
 
@@ -226,13 +311,13 @@ class PathHandler {
     save_tree_copy() { this.tree = JSON.parse(JSON.stringify(this.tree_copy)) }
 
     utils_validate_path(path) {
-        // path_regex = new RegExp('? ![_.])( ? !.*[_.] { 2 })[a - zA - Z0 - 9 _] + ( ? < ![_.]) $');
-        // const list = path.split('/');
-        // for (let elt in list) {
-        //     if (!elt.match(path_regex)) {
-        //         return false;
-        //     }
-        // }
+        path_regex = new RegExp('^([A-Za-z]:|[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*)((\/[A-Za-z0-9_.-]+)+)\/$');
+        const list = path.split('/');
+        for (let elt in list) {
+            if (!elt.match(path_regex)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -259,7 +344,7 @@ class PathHandler {
             }
             return _interpret_path(resolve_path(path), this.tree_copy);
         }
-        return 'path or file_tree are not valid';
+        return null;
     }
 
     utils_validate_tree() { return true; } //validation crietirias { no duplicates on same directory , no name root}

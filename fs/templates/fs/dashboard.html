@@ -77,8 +77,13 @@
 
 {% endblock content %} {% block extra_scripts %}
 <script>
-    const pdf_image_url = "{% static 'img/pdf.jfif' %}"
+    const pdf_image_url = "{% static 'img/pdf_icon.jfif' %}";
+    const txt_image_url = "{% static 'img/txt_icon.png' %}";
+    const xlsx_image_url = "{% static 'img/xlsx_icon.png' %}";
+    const docx_image_url = "{% static 'img/docx_icon.png' %}";
+    const other_image_url = "{% static 'img/other_icon.png' %}";
 </script>
+<script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/FS handler.js' %}"></script>
 <script src="{% static 'js/UserUI.js' %}"></script>
 <script>

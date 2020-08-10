@@ -1,3 +1,4 @@
+//import utils
 class UserInterfaceHandler {
     constructor(init_tree, api) {
         this.api = api
@@ -14,13 +15,15 @@ class UserInterfaceHandler {
                 </div>
             </div>`,
 
-            file: (file_name, download_link) => `<div class="col s6 m3 l2" data="file">
+            file: (file_name,download_link,file_size,file_type,year) => `<div class="col s6 m3 l2" data="file">
             <div class="card">
                 <div class="card-image" style="max-height: 100px;max-width: 100px;">
-                    <img src="${pdf_image_url}" class="card-image-center">
+                    <img src="${get_img(file_type)}" class="card-image-center">
                 </div>
                 <div class="card-content">
                     <p>${file_name}</p>
+                    <p>Size: ${file_size}</p>
+                    <p>Year: ${year}</p>
                 </div>
                 <div class="card-action">
                     <a href="${download_link}" download>Download</a>
@@ -100,7 +103,7 @@ class UserInterfaceHandler {
         files_list_promise.then((files_list) => {
             for (let i = 0; i < files_list.length; i++) {
                 const elt = document.createElement('div');
-                elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path);
+                elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path,files_list[i].size,files_list[i].type,files_list[i].year);
                 this.parents.files.appendChild(elt);
             }
         })

@@ -1,12 +1,12 @@
 {% extends "admin/base_site.html" %}{% load static %} {% block extrastyle %}
 <!-- <link rel="stylesheet" href="{% static 'css/tail.select-light-feather.min.css' %}"> -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" class="css">
+<link rel="stylesheet" href="{% static 'css/font_awsome.min.css' %}" class="css">
 <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endblock %} {% block content %}
 <!-- 
 <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate> -->
-<div class="related-widget-wrapper">
+<div class="related-widget-wrapper" id = 'wraps-client'>
     <label for="id_select">Chose Client: </label>
-    <select name="owner_id" required="" id="id_owner_id">
+    <select required="" id="client-choice">
                 <option value="">JS here</option>
         </select>
     <!-- link for update -->
@@ -18,40 +18,53 @@
 <main>
     <div class="related-widget-wrapper">
         <div class='interface-wrapper'>
-            <div class="navigation">
-                <div class="navigation-buttons" flex="">
+            <div class="navigation" id='wrap-navigation'>
+                <div class="navigation-buttons">
                     <button id="prev" class="waves-effect waves-light btn"><i class="fa fa-arrow-left"></i></button>
-                    <button id="post" class="waves-effect waves-light btn"><i class="fa fa-arrow-right"></i></button>
+                    <!-- <button id="post" class="waves-effect waves-light btn"><i class="fa fa-arrow-right"></i></button> -->
                 </div>
-                <div class='path-wrapper' flex="">
+                <div class='path-wrapper'>
                     <input type="text">
-                    <i>validate_path</i>
+                    <button id="validate_path"><i>validate_path</i></button>
                 </div>
 
             </div>
 
             <div class="interface">
-                <div class="FS-action-buttons" flex="">
-                    <button id="file_add" class="waves-effect waves-light btn"><i class="fa fa-plus"></i></button>
-                    <button id="file_del" class="waves-effect waves-light btn"><i class="fa fa-minus"></i></button>
+                <div class="FS-action-buttons" id='wrap-actionButtons'>
+                    <button id="add_file" class="waves-effect waves-light btn"><i class="fa fa-plus"></i></button>
+                    <button id="add_dir" class="waves-effect waves-light btn"><i class="fas fa-folder-plus"></i></button>
 
-                    <button id="dir_add" class="waves-effect waves-light btn"><i class="fas fa-folder-plus"></i></button>
-
-                    <button id="dir_del" class="waves-effect waves-light btn"><i class="fas fa-folder-minus"></i></button>
+                    <button id="delete" class="waves-effect waves-light btn"><i class="fas fa-folder-minus"></i></button>
                     <button id="edit" class="waves-effect waves-light btn"><i class="fas fa-pen"></i></button>
-                    <!-- 
+                    
                     <button id="undo" class="waves-effect waves-light btn"><i class="fa fa-undo"></i></button>
-
-                    <button id="redo" class="waves-effect waves-light btn"><i class="fas fa-redo"></i></button> -->
+                    <button id="redo" class="waves-effect waves-light btn"><i class="fas fa-redo"></i></button>
 
                 </div>
-                <div class="FS-table">
+                <div class='forms' id='wrap-forms'>
+                    <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="file_form" class='hidden' novalidate>
+                        <input type="text" id='file_name'>
+                        <input type="text" id='file_content'>
+                        <p class="file-upload">Currently: <a href="#" id="current_file"></a><br>
+                            Change:
+                            <input type="file" id="file_path">
+                        </p>
+                        <input type="text" id='year'>
+                        <button>save</button>
+                    </form>
+                    <form action="" method ="post" id ='folder_form' class='hidden' , novalidate>
+                        <input type="text" id='folder_name'>
+                        <button>Save</button>
+                    </form>
+                </div>
+                <div class="FS-table" id ='wrap-table'>
                     <table>
                         <thead>
                             <td>Name</td>
-                            <td>Year</td>
                             <td>Type</td>
                             <td>Size</td>
+                            <td>Year</td>
                         </thead>
                         <tbody id="FS">
                             <tr>
@@ -148,14 +161,6 @@
                     </table>
                 </div>
             </div>
-            <div class="utils-form">
-                <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
-                    {% csrf_token %}
-                    <input type="text">
-                    <input type="text">
-                    <input type="file">
-                </form>
-            </div>
         </div>
     </div>
 
@@ -165,9 +170,17 @@
 
 </main>
 {% endblock content %} {% block extrascripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="{% static 'js/materialize.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/tail.select.min.js' %}"></script>
+<script>
+    const pdf_image_url = '<i class="fas fa-file-pdf"></i>';
+    const txt_image_url = '<i class="fas fa-file-alt"></i>';
+    const xlsx_image_url = '<i class="fas fa-file-excel"></i>';
+    const docx_image_url = '<i class="fas fa-file-word"></i>';
+    const other_image_url = '<i class="fas fa-question-circle"></i>';
+</script>
+<script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/FS handler' %}"></script>
 <script src="{% static 'js/AdminUI.js' %}"></script>
 <!-- <script>

@@ -257,6 +257,6 @@ nav.clean .breadcrumb:last-child {
     display: flex;
 }
 
-.utils-form {
+.hidden {
     display: none;
 }
