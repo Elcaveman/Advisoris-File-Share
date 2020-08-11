@@ -212,40 +212,27 @@ nav.clean .breadcrumb:last-child {
     size: 50px;
 }
 
-#dir_add::after {
+#add_dir::after {
     content: 'add folder';
     display: block;
 }
 
-#dir_add:hover::after {
+#add_dir:hover::after {
     size: 50px;
 }
 
-#dir_del::after {
-    content: 'delete folder';
-    display: block;
-}
-
-#dir_del:hover::after {
-    size: 50px;
-}
-
-#file_add::after {
+#add_file::after {
     content: 'add folder';
     display: block;
 }
 
-#file_add:hover::after {
+#add_file:hover::after {
     size: 50px;
 }
 
-#file_del::after {
-    content: 'delete folder';
+#delete::after {
+    content: 'delete element';
     display: block;
-}
-
-#file_del:hover::after {
-    size: 50px;
 }
 
 #edit::after {

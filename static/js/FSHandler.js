@@ -101,14 +101,14 @@ class APIHandler {
             return cookieValue;
         }
         try {
-            if (request_method == 'GET') {
+            if (request_method === 'GET') {
                 let headers = {
                     'Content-Type': 'application/json'
                 };
                 const response = await fetch(url, { headers, });
                 const response_json = await response.json();
                 return response_json;
-            } else if (request_method == 'DELETE') {
+            } else if (request_method === 'DELETE') {
                 const csrftoken_ = getCookie('csrftoken');
                 const defaults = {
                     'method': 'DELETE',
@@ -120,20 +120,21 @@ class APIHandler {
                 const response = await fetch(url, defaults);
                 return true;
 
-            } else if (request_method == 'POST' || request_method == 'PUT') {
+            } else if (request_method === 'POST' || request_method === 'PUT' || request_method==='PATCH') {
                 const csrftoken_ = getCookie('csrftoken');
-                const urlencoded = new URLSearchParams(JSON.stringify(body_data));
+                //const urlencoded = new URLSearchParams(JSON.stringify(body_data));
                 const defaults = {
                     'method': request_method,
                     'credentials': 'same-origin',
                     'headers': new Headers({
                         'X-CSRFToken': csrftoken_,
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Content-Type':'application/json',
                     }),
-                    'body': urlencoded,
+                    'body': JSON.stringify(body_data),
                 };
                 const response = await fetch(url, defaults);
-                return true;
+                console.log(response.json());
+                return response;
             }
         } catch (err) { alert(err); return false }
     }
@@ -152,8 +153,9 @@ class APIHandler {
             const url = `${this.URLS.manage_clients}${client_id}/`;
             try {
                 const owner = await this.get_client(client_id);
-                owner.file_tree = json_file_tree;
-                const response = this.utils_fetch(url, 'PUT', owner);
+                owner.file_tree = json_file_tree;//saved as text in the DB not as JSON !!!!
+                console.log(owner);
+                const response = await this.utils_fetch(url, 'PUT', owner);
                 return response;
 
             } catch (error) {
@@ -231,18 +233,18 @@ class APIHandler {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
         }
     }
-    async update_file(file_id,current_fileBlob,display_name=null , fileBlob=null , filepool_id=null , year=null) {
+    async update_file(file_id,display_name=null , fileBlob , filepool_id=null , year=null) {
         // TODO: load current file path into the file_input
         const url = `${this.URLS.manage_files}${file_id}/`;
         const data = {};
         //append to the data object
+        data['file_path']=fileBlob;
         display_name?data['display_name']=display_name:false;
-        fileBlob?data['file_path']=fileBlob:data['file_path']=current_fileBlob;
         filepool_id?data['filepool']=filepool_id:false;
         year?data['year']=year:false;
         
         try {
-            const response = await this.utils_fetch(url, 'POST',data);
+            const response = await this.utils_fetch(url, 'PATCH',data);
             return response;
         } catch (error) {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -287,7 +289,7 @@ class APIHandler {
 
 class PathHandler {
     constructor(tree = null, api_handler_instance) {
-        this.current_path = 'Root/';
+        this.current_path = 'root/';
         this.tree = tree != null ? JSON.parse(JSON.stringify(tree)) : this.init_tree(); //used for transaction with api
         this.tree_copy = JSON.parse(this.tree); //used for transactions with front_end
         this.node_template = {
@@ -311,14 +313,12 @@ class PathHandler {
     save_tree_copy() { this.tree = JSON.parse(JSON.stringify(this.tree_copy)) }
 
     utils_validate_path(path) {
-        path_regex = new RegExp('^([A-Za-z]:|[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*)((\/[A-Za-z0-9_.-]+)+)\/$');
-        const list = path.split('/');
-        for (let elt in list) {
-            if (!elt.match(path_regex)) {
-                return false;
-            }
-        }
-        return true;
+        const path_regex = /^(root)*(\.[A-Za-z0-9_-]+)*((\/[A-Za-z0-9_.-]+)+)?\/$/gm; 
+        try {
+            return path.match(path_regex)[0]===path;
+        } catch (error) {
+            return false;
+        } 
     }
 
     convert_path_to_tree(path_ = null) {
@@ -355,78 +355,71 @@ class PathHandler {
     }
 
     utils_create_subtree(path = null, display, filepool) {
-        if (typeof(display) == this.node_template['display'] && typeof(filepool) == this.node_template['display']) {
-            function _create_node(tree, display, filepool) {
-                counter = 0;
-                display = resolve_name(display, tree['subtrees'], 'display')
-                const node = JSON.parse(JSON.stringify(this.node_template));
-                node['display'] = display;
-                node['filepool'] = filepool;
-                tree['subtrees'].push(node);
-            }
-            _create_node(this.convert_path_to_tree(path), display, filepool);
-            return 'node created'
+        let self = this;
+        function _create_node(tree, display, filepool) {
+            let counter = 0;
+            display = resolve_name(display, tree['subtrees'], 'display')
+            const node = JSON.parse(JSON.stringify(self.node_template));
+            node['display'] = display;
+            node['filepool'] = filepool;
+            node['subtrees'] = [];
+            tree['subtrees'].push(node);
         }
-        return 'The Types of arguments are different than the pathHandler.template settings'
+        _create_node(this.convert_path_to_tree(path), display, filepool);
+        return 'node created'
     }
+    
     utils_delete_subtree(path = null, display) {
-        if (typeof(display) == this.node_template['display'] && typeof(filepool) == this.node_template['display']) {
-            const del_filepool_id_collection = []
-
-            function _disolute_subtree(tree, filepool_cleaning_bool, del_filepool_id_collection) {
-                if (typeof(tree) == 'undefined') return;
-                if (filepool_cleaning == true) {
-                    if (tree['filepool'] != 0) {
-                        del_filepool_id_collection.push(tree['filepool']);
-                        for (let i = 0; i < tree['subtrees'].length; i++) {
-                            disolute_subtree(tree, filepool_cleaning_bool, del_filepool_id_collection);
-                        }
-                    }
-                }
-                //filepool_cleanning == false means all we have to do is manage the template JSON (file_tree JSON)
-            }
-
-            function _delete_subtree(tree, display, filepool_cleaning_bool, del_filepool_id_collection) {
+        function _disolute_subtree(tree) {
+            if (typeof(tree) == 'undefined') return;
+            if (tree['filepool'] != 0) {
+                this.delete_filepool(tree['filepool']);
                 for (let i = 0; i < tree['subtrees'].length; i++) {
-                    if (tree['subtrees'][i]['display'] === display) {
-                        //splice(i, j) : starting at the index i delete j items
-                        _disolute_subtree(tree['subtrees'][i], filepool_cleaning_bool)
-                        tree['subtrees'].splice(i, 1);
-                        break;
-                    }
+                    disolute_subtree(tree);
                 }
             }
-            _delete_node(this.convert_path_to_tree(path), display, true, del_filepool_id_collection);
-            return 'subtree deleted!'
         }
-        return 'The Types of arguments are different than the pathHandler.template settings'
-    }
-    utilis_update_subtree(path = null, display, new_display, new_filepool, new_subtrees) {
-        if (typeof(display) == this.node_template['display'] && typeof(filepool) == this.node_template['display']) {
-            {
-                function _update_subtree(tree, display, new_display, filepool, subtrees) {
-                    for (let i = 0; i < tree['subtrees'].length - 1; i++) {
-                        if (tree['subtrees'][i]['display'] === display) {
-                            tree['subtrees'][i]['display'] = new_display;
-                            tree['subtrees'][i]['filepool'] = new_filepool;
-                            tree['subtrees'][i]['subtrees'] = new_subtrees;
-                            break;
-                        }
-                    }
+        function _delete_subtree(tree, display) {
+            for (let i = 0; i < tree['subtrees'].length; i++) {
+                if (tree['subtrees'][i]['display'] === display) {
+                    //splice(i, j) : starting at the index i delete j items
+                    _disolute_subtree(tree['subtrees'][i])
+                    tree['subtrees'].splice(i, 1);
+                    break;
                 }
-                _update_subtree(this.convert_path_to_tree(path), display, new_display, new_filepool, new_subtrees)
             }
         }
+        _delete_subtree(this.convert_path_to_tree(path), display);
+        return 'subtree deleted!'
+    
     }
+    utils_update_subtree(path_ = null, display, new_display, new_filepool=null, new_subtrees=null) {
+        function _update_subtree(tree, display, new_display, filepool, subtrees) {
+            for (let i = 0; i < tree['subtrees'].length - 1; i++) {
+                if (tree['subtrees'][i]['display'] === display) {
+                    tree['subtrees'][i]['display'] = new_display;
+                    new_filepool?tree['subtrees'][i]['filepool'] = new_filepool:false;
+                    new_subtrees?tree['subtrees'][i]['subtrees'] = new_subtrees:false;
+                    break;
+                }
+            }
+        }
+        _update_subtree(this.convert_path_to_tree(path), display, new_display, new_filepool, new_subtrees)
+    }
+    
 
     display_tree(path = null) {
         //UT Done
         const display_data = {
             dirs: [], //{'dir1','dir2'...}
-            files: [] //{{id:...}(JSON returned by API *Promise) }
         }
         const tree = this.convert_path_to_tree();
-        display_data.files = this.api.get_files_by_filepool(tree["filepool"]);
+        console.log(tree);
+        if (tree["filepool"]!==0){
+             //{{id:...}(JSON returned by API *Promise) }
+            display_data.files = this.api.get_files_by_filepool(tree["filepool"]);
+        }
+        
         for (let i = 0; i < tree['subtrees'].length; i++) {
             display_data.dirs.push(tree['subtrees'][i]['display']);
         }

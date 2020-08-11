@@ -38,15 +38,16 @@ class AdminInterfaceHandler {
         </tr>`,
         };
         this.forms = {
-            FileForm:document.querySelector('#file-form'),
-            FolderForm:document.querySelector('#folder-form')
+            FileForm:document.querySelector('#file_form'),
+            FolderForm:document.querySelector('#folder_form')
         }
         this.parents = {
             client:document.querySelector('#wraps-client'),
             navigation: document.querySelector('#wrap-navigation'),//contains the path handler, [prev,post] buttons
             actionButtons:document.querySelector('#wrap-actionButtons'),//contains the buttons used to interact with the UI/API
             forms:document.querySelector('#wrap-forms'),//contains the forms displayed on button click to Create/Update an elt
-            table:document.querySelector('#wrap-table'),
+            table:document.querySelector('#FS'),
+            table_wrapper:document.querySelector('#wrap-table'),
         };
         this.actionButtons={
             add_file: this.parents.actionButtons.querySelector('#add_file'),
@@ -56,6 +57,7 @@ class AdminInterfaceHandler {
         }
         //init's
         this.init_navigation();
+        this.init_actionButtons();
         this.create_layout();
     }
     init_navigation(){
@@ -72,6 +74,7 @@ class AdminInterfaceHandler {
             const response = this.path.utils_validate_path(vpath);
             if (response){
                 if (this.path.convert_path_to_tree(vpath)===null){
+                    path_input.value = this.path.current_path;
                     M.toast({html:"This path doesn't exist",classes:'red rounded' , displatLength:2000})
                 }
                 else{
@@ -80,14 +83,22 @@ class AdminInterfaceHandler {
                 }
             }
             else{
+                path_input.value = this.path.current_path;
                 M.toast({html:"Invalid path",classes:'red rounded' , displatLength:2000})
             }
         })
         prev_button.addEventListener('click',(event)=>{
             const list = resolve_path(this.path.current_path);
-            list.pop();
-            const vpath = assemble_path(list);
-            const response = this.path.utils_validate_path(vpath);
+            let vpath;
+            let response = false;
+            if (list.length>1){
+                list.pop();
+                vpath = assemble_path(list,0,list.length);
+                response = this.path.utils_validate_path(vpath);
+            }
+            else{
+                return false;//desactivate click when path = root
+            }
             if (response){
                 if (this.path.convert_path_to_tree(vpath)===null){
                     M.toast({html:"This path doesn't exist",classes:'red rounded' , displatLength:2000})
@@ -102,23 +113,70 @@ class AdminInterfaceHandler {
             }
         })
     }
-    init_form(){
-        //* init form on actionbutton click!
-        // let submit_file = this.forms.FileForm.querySelector('button');
-        // let submit_folder = this.forms.FolderForm.querySelector('button');
-        // submit_file.addEventListener('click',(event)=>{
-
-        // })
-
-        // submit_folder.addEventListener('click',(event)=>{
-
-        // })
+    clean_table(){
+        this.parents.table.removeEventListeners('click');
+        this.parents.table.removeEventListeners('dblclick');
+        this.parents.table.innerHTML = '';
     }
-    destroy_form(){
 
+    manage_files(){
+        if (this.path.convert_path_to_tree()['filepool']!==0){
+            let files_list_promise = this.path.display_tree().files;
+            files_list_promise.then((files_list) => {
+                for (let i = 0; i < files_list.length; i++) {
+                    this.parents.table.innerHTML += this.template.file(files_list[i],i);
+            }
+        })
+        }  
+    }
+    manage_dirs(){
+        let folders_list = this.path.display_tree().dirs;
+        folders_list.forEach((folder, i) => {
+            this.parents.table.innerHTML += this.template.folder(folder, i);
+        })
+    }
+
+    manage_table_events(){
+        //dblclicks
+        this.parents.table.addEventListener('dblclick', (event) => {
+            if (event.target !== event.currentTarget) {
+                event.preventDefault();
+                let clicked_item = event.target;
+                if (clicked_item.localName === 'td') {
+                    clicked_item = clicked_item.parentElement
+                }
+                if (clicked_item.localName === 'span' ||clicked_item.localName === 'i') {
+                    clicked_item = clicked_item.parentElement.parentElement
+                }
+                let type = clicked_item.getAttribute('type');
+                if (type==='folder'){
+                    this.path.update_current_path(`${this.path.current_path}${clicked_item.getAttribute('id')}/`);
+                    this.create_layout();
+                }
+                if (type==='file'){
+                    console.log('open file');
+                }
+            }
+        });
+        this.parents.table.addEventListener('click',(event)=>{
+            if (event.target !== event.currentTarget) {
+                event.preventDefault();
+                let clicked_item = event.target;
+                if (clicked_item.localName === 'td') {
+                    clicked_item = clicked_item.parentElement
+                }
+                if (clicked_item.localName === 'span' ||clicked_item.localName === 'i') {
+                    clicked_item = clicked_item.parentElement.parentElement
+                }
+                this.selected_item = clicked_item;
+            }
+        })
+    }
+    manage_navigation(){
+        let path_input = this.parents.navigation.querySelector('input');
+        path_input.value = this.path.current_path;
     }
     init_actionButtons() {
-        //ads and event lsitener to the table
         this.actionButtons.add_file.addEventListener('click',(event)=>{
             let self = this;
             function handler(data){
@@ -129,10 +187,10 @@ class AdminInterfaceHandler {
                         try {
                             const id = self.api.create_filepool(data['owner'],data['path']).then((res)=>res.id);
                             try {
-                                self.api.create_file(data['file_name'],data['file_content'],id,data['year']);
+                                self.api.create_file(data['file_name'],data['file_path'],id,data['year']);
                                 self.path.convert_path_to_tree().filepool = id;
-                                self.api.update_file_tree(self.path.tree_copy ,this.target_client);
-                                //!REload
+                                self.api.update_file_tree(JSON.stringify(self.path.tree_copy) ,self.target_client);
+                                self.create_layout();
                                 }
                             catch (error) {
                                 M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -146,8 +204,8 @@ class AdminInterfaceHandler {
                     }
                     else{
                         try {
-                            self.api.create_file((data['file_name'],data['file_content'],filepool,data['year']));
-                            //!REload
+                            self.api.create_file((data['file_name'],data['file_path'],filepool,data['year']));
+                            self.create_layout();
                         } catch (error) {
                             M.toast({html:error,classes:'red rounded' , displatLength:2000});
                             return 0;}
@@ -159,9 +217,10 @@ class AdminInterfaceHandler {
             this.parents.forms.querySelector('#file_form').classList.remove('hidden');
             let submit_file = this.forms.FileForm.querySelector('button');
             submit_file.addEventListener(('click'),(event)=>{
-                data = {
+                event.preventDefault();
+                const data = {
                     file_name:this.forms.FileForm.querySelector('#file_name').value,
-                    file_content:this.forms.FileForm.querySelector('#file_content').files[0],//get the downloaded file from the input
+                    file_path:this.forms.FileForm.querySelector('#file_path').files[0],//get the downloaded file from the input
                     year:this.forms.FileForm.querySelector('#year').value,
                 }
                 if (handler(data)){
@@ -170,7 +229,7 @@ class AdminInterfaceHandler {
                 else{
                     M.toast({html:'Try again',classes:'gray rounded' , displatLength:2000});
                 }
-                this.parents.forms.querySelectorAll('form').classList.add('hidden');
+                this.parents.forms.querySelector('#file_form').classList.add('hidden');
                 submit_file.removeEventListeners('click');
             })
         });
@@ -179,9 +238,11 @@ class AdminInterfaceHandler {
             let self = this;
             function handler(data){
                 try {
-                    this.path.utils_create_subtree(null,data['folder_name'],0);
-                    this.api.update_file_tree(this.path.tree_copy,this.target_client);
-                    //reload
+                    self.path.utils_create_subtree(null,data['folder_name'],0);
+                    //REMOVE JSON.STRINGIFY ONCE ON PRODUCTION (postgres has a JSONfield)
+                    self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client);
+
+                    self.create_layout();
                     return true;
                 } catch (error) {
                     M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -191,7 +252,8 @@ class AdminInterfaceHandler {
             this.parents.forms.querySelector('#folder_form').classList.remove('hidden');
             let submit_folder = this.forms.FolderForm.querySelector('button');
             submit_folder.addEventListener(('click'),(event)=>{
-                data = {
+                event.preventDefault();
+                const data = {
                     folder_name:this.forms.FolderForm.querySelector('#folder_name').value,
                 }
                 if (handler(data)){
@@ -200,7 +262,7 @@ class AdminInterfaceHandler {
                 else{
                     M.toast({html:'Try again',classes:'gray rounded' , displatLength:2000});
                 }
-                this.parents.forms.querySelectorAll('form').classList.add('hidden');
+                this.parents.forms.querySelector('#folder_form').classList.add('hidden');
                 submit_folder.removeEventListeners('click');
             })
 
@@ -208,68 +270,133 @@ class AdminInterfaceHandler {
 
         this.actionButtons.delete_element.addEventListener('click',(event)=>{
             if (this.selected_item){
-                let element_id = this.selected_item.getAttribute['id'];
-                let element_data = this.selected_item.getAttribute['data']
-                let element_type = this.selected_item.getAttribute['type'];
-
+                
+                let element_id = this.selected_item.getAttribute('id');
+                let element_type = this.selected_item.getAttribute('type');
                 if (element_type ==='folder'){
                     this.path.utils_delete_subtree(null,element_id);
-                    this.api.update_file_tree(this.path.tree_copy,this.target_client);
+                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client);
                 }
-                if (element_type == 'file'){
+                if (element_type === 'file'){
+                    let element_data = this.selected_item.getAttribute('data')
                     this.api.delete_file(element_id);
                     this.api.clean_filepool(this.convert_path_to_tree()['filepool']).then((resp)=>{
                         if (resp){
                             this.convert_path_to_tree()['filepool'] = 0;
-                            this.api.update_file_tree(this.path.tree_copy,this.target_client);
+                            this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client);
                         }
                     });
                 }
+                this.create_layout();
             }
             else{
                 M.toast({html:'Select a fiel or a folder',classes:'red rounded' , displatLength:2000})
             }
         });
+
         this.actionButtons.edit_element.addEventListener('click',(event)=>{
             if (this.selected_item){
-            //     let element_id = this.selected_item.getAttribute['id'];
-            //     let element_data = this.selected_item.getAttribute['data']
-            //     let element_type = this.selected_item.getAttribute['type'];
-
-            //     if (element_type ==='folder'){
-            //         this.path.utils_update_subtree(null,element_id,);
-            //         this.api.update_file_tree(this.path.tree_copy,this.target_client);
-            //     }
-            //     if (element_type == 'file'){
-            //         this.api.delete_file(element_id);
-            //         this.api.clean_filepool(this.convert_path_to_tree()['filepool']).then((resp)=>{
-            //             if (resp){
-            //                 this.convert_path_to_tree()['filepool'] = 0;
-            //                 this.api.update_file_tree(this.path.tree_copy,this.target_client);
-            //             }
-            //         });
-            //     }
-                if (element_type ==='folder'){
-                    //update filetree
+                let self = this;
+                function handle_file(element_id,data){
+                    try {
+                        self.api.update_file(element_id,data.file_path,data.file_name , data.filepool , data.year);
+                        M.toast({html:'File updated succesfully!',classes:'green rounded' , displatLength:2000});
+                        return true;
+                    } catch (error) {
+                        M.toast({html:error,classes:'red rounded' , displatLength:2000});
+                        return false;
+                    }
+                    
                 }
-                if (element_type ==='file'){
-                    //PUT file
+
+                function handle_folder(element_id,data){
+                    self.path.utils_update_subtree(null,element_id,data.folder_name,null,null);
+                    self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client);
+                }
+                let element_id = this.selected_item.getAttribute('id');
+                let element_data = this.selected_item.getAttribute('data');
+                let element_type = this.selected_item.getAttribute('type');                
+                
+                if (element_type ==='folder'){
+                    //show form
+                    this.parents.forms.querySelector('#folder_form').classList.remove('hidden');
+                    let submit_folder = this.forms.FolderForm.querySelector('button');
+                    //populate form
+                    this.forms.FolderForm.querySelector('#folder_name').value = element_data;
+                    //listen to submit form
+                    submit_folder.addEventListener(('click'),(event)=>{
+                        event.preventDefault();
+                        const data = {
+                            folder_name:this.forms.FolderForm.querySelector('#folder_name').value,
+                        }
+                        if (handle_folder(data)){
+                            M.toast({html:'Folder created successfully!',   classes:'green rounded' , displatLength:2000});
+                        }
+                        else{
+                            M.toast({html:'Try again',classes:'gray rounded' ,  displatLength:2000});
+                        }
+                        //hide form
+                        this.parents.forms.querySelector('#folder_form').classList.add('hidden');
+                        submit_folder.removeEventListeners('click');
+                    })
+                
+                }
+
+                if (element_type == 'file'){
+
+                    this.parents.forms.querySelector('#file_form').classList.remove('hidden');
+                    let submit_file = this.forms.FolderForm.querySelector('button');
+                    
+                    this.forms.FileForm.querySelector('#file_name').value = element_data['display_name'];
+
+                    this.forms.FileForm.querySelector('#current_file').setAttribute('href',element_data['file_path']);
+                    this.forms.FileForm.querySelector('#current_file').inenerText = element_data['file_path'].split('/').pop();
+
+                    this.forms.FileForm.querySelector('#year').value = element_data['year'];
+
+
+                    submit_file.addEventListener(('click'),(event)=>{
+                        event.preventDefault();
+                        const data = {
+                            file_name:this.forms.FileForm.querySelector('#file_name').value,
+                            filepool:element_data['filepool'],
+                            year:this.forms.FileForm.querySelector('#year').value,
+                        }
+                        if (this.forms.FileForm.querySelector('#file_path').files[0]){
+                            data.file_path = this.forms.FileForm.querySelector('#file_path').files[0];
+                        }
+                        else{
+                            //fetch file from url and add it to the data object
+                            fetch(element_data['file_path']).then(res => data.file_path = res.blob());
+                        }
+                        
+                        if (handle_file(data)){
+                            M.toast({html:'File created successfully!',   classes:'green rounded' , displatLength:2000});
+                        }
+                        else{
+                            M.toast({html:'Try again',classes:'gray rounded' ,  displatLength:2000});
+                        }
+                        this.parents.forms.querySelector('#file_form').classList.add('hidden');
+                        submit_folder.removeEventListeners('click');
+                    })
                 }
             }
             else{
                 M.toast({html:'Select a fiel or a folder',classes:'red rounded' , displatLength:2000})
             }
         });
+        //add click handler for the whole div to know if another button was clicked!
 
     }
 
     create_layout() {
-
+        this.clean_table();
+        this.manage_navigation();
+        this.manage_files();
+        this.manage_dirs();
+        this.manage_table_events();
     }
 }
-
-
-
 
 class InterfaceHandler {
     constructor() {
@@ -295,12 +422,17 @@ class InterfaceHandler {
     Client_Listener(){
         let self = this;
         this.client_choice.addEventListener('change',(event)=>{
-            self.target_client = event.target.getAttribute('data');
+            self.target_client = event.target.value;
             self.LoadUIHandler();
         })
     }
     async LoadUIHandler(){
-        const init_tree = await this.api.get_client(this.target_client).then((res) => res.file_tree);
-        const handler = await new AdminInterfaceHandler(init_tree,this.target_client,this.api);
+        if (this.target_client!=0){
+            const init_tree = await this.api.get_client(this.target_client).then((res) => res.file_tree);
+            const handler = await new AdminInterfaceHandler(init_tree,this.target_client,this.api);
+        }
+        
     }
 }
+
+let t = new InterfaceHandler();

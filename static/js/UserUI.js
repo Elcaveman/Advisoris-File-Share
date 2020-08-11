@@ -99,14 +99,15 @@ class UserInterfaceHandler {
         //clean
         this.parents.files.innerHTML = '';
         //add
-        let files_list_promise = this.path.display_tree().files;
-        files_list_promise.then((files_list) => {
-            for (let i = 0; i < files_list.length; i++) {
-                const elt = document.createElement('div');
-                elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path,files_list[i].size,files_list[i].type,files_list[i].year);
-                this.parents.files.appendChild(elt);
+        if (this.path.convert_path_to_tree()['filepool']){
+            let files_list_promise = this.path.display_tree().files;
+            files_list_promise.then((files_list) => {
+                for (let i = 0; i < files_list.length; i++) {
+                    const elt = document.createElement('div');
+                    elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path,files_list[i].size,files_list[i].type,files_list[i].year);
+                    this.parents.files.appendChild(elt);
             }
-        })
+        })}
     }
     create_layout() {
         //step1: get current tree and parse it

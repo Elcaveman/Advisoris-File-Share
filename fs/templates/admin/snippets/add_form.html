@@ -1,14 +1,12 @@
 {% extends "admin/base_site.html" %}{% load static %} {% block extrastyle %}
 <!-- <link rel="stylesheet" href="{% static 'css/tail.select-light-feather.min.css' %}"> -->
-<link rel="stylesheet" href="{% static 'css/font_awsome.min.css' %}" class="css">
+<!-- <link rel="stylesheet" href="{% static 'css/font_awsome.min.css' %}" class="css"> -->
 <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endblock %} {% block content %}
 <!-- 
 <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate> -->
 <div class="related-widget-wrapper" id = 'wraps-client'>
     <label for="id_select">Chose Client: </label>
-    <select required="" id="client-choice">
-                <option value="">JS here</option>
-        </select>
+    <select required="" id="client-choice"></select>
     <!-- link for update -->
     <a class="related-widget-wrapper-link change-related" id="change_id_owner_id" data-href-template="/admin/user/client/__fk__/change/?_to_field=id&amp;_popup=1" title="Change selected client" href="/admin/user/client/1/change/?_to_field=id&amp;_popup=1"><img src="/static/admin/img/icon-changelink.svg" alt="Change"></a>
     <!-- link for add -->
@@ -44,12 +42,15 @@
                 </div>
                 <div class='forms' id='wrap-forms'>
                     <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="file_form" class='hidden' novalidate>
+                        <label for="file_name">File Name</label>
                         <input type="text" id='file_name'>
-                        <input type="text" id='file_content'>
+                       
                         <p class="file-upload">Currently: <a href="#" id="current_file"></a><br>
                             Change:
                             <input type="file" id="file_path">
                         </p>
+
+                        <label for="year">year</label>
                         <input type="text" id='year'>
                         <button>save</button>
                     </form>
@@ -67,7 +68,7 @@
                             <td>Year</td>
                         </thead>
                         <tbody id="FS">
-                            <tr>
+                            <!-- <tr>
                                 <td>
                                     <i class="fa fa-folder"></i>
                                     <span>folder1</span>
@@ -79,37 +80,8 @@
                                 </td>
                                 <td>
                                 </td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <i class="fa fa-folder"></i>
-                                    <span>folder2</span>
-                                </td>
-                                <td>
-                                    2020
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-
-
-                            <tr>
-                                <td>
-                                    <i class="fa fa-folder"></i>
-                                    <span>folder3</span>
-                                </td>
-                                <td>
-                                    2020
-                                </td>
-                                <td>
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-
+                            </tr> -->
+<!-- 
                             <tr>
                                 <td>
                                     <i class="fa fa-file-pdf"></i>
@@ -124,38 +96,7 @@
                                 <td>
                                     1Mo
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>file 1</span>
-                                </td>
-                                <td>
-                                    2019
-                                </td>
-                                <td>
-                                    PDF
-                                </td>
-                                <td>
-                                    1Mo
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>file 1</span>
-                                </td>
-                                <td>
-                                    2019
-                                </td>
-                                <td>
-                                    PDF
-                                </td>
-                                <td>
-                                    1Mo
-                                </td>
-                            </tr>
+                            </tr> -->
 
                         </tbody>
                     </table>
@@ -169,10 +110,8 @@
 
 
 </main>
-{% endblock content %} {% block extrascripts %}
+{% endblock content %} {% block footer %}
 <script src="{% static 'js/materialize.min.js' %}"></script>
-
-<script type="text/javascript" src="{% static 'js/tail.select.min.js' %}"></script>
 <script>
     const pdf_image_url = '<i class="fas fa-file-pdf"></i>';
     const txt_image_url = '<i class="fas fa-file-alt"></i>';
@@ -181,12 +120,9 @@
     const other_image_url = '<i class="fas fa-question-circle"></i>';
 </script>
 <script src="{% static 'js/utils.js' %}"></script>
-<script src="{% static 'js/FS handler' %}"></script>
+<script src="{% static 'js/FSHandler.js' %}"></script>
 <script src="{% static 'js/AdminUI.js' %}"></script>
-<!-- <script>
-    tail.select('#search box', {
-        search: true,
-    });
-    tail.select('#id_owner_id', {});
-</script> -->
-{% endblock extrascripts %}
+<script>
+
+</script>
+{% endblock footer %}
