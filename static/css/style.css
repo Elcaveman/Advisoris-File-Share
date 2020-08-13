@@ -222,7 +222,7 @@ nav.clean .breadcrumb:last-child {
 }
 
 #add_file::after {
-    content: 'add folder';
+    content: 'add file';
     display: block;
 }
 

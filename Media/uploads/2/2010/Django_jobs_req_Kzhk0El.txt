@@ -1,0 +1,89 @@
+Job1:****************************
+
+• 2+ years recent experience in web development using Python and JavaScript Experience 
+in building RESTful APIs using Django, Django REST Framework and Flask Experience 
+in frontend technologies (ES6, React, Angular, Webpack, ...)
+• Experience with Git, unit testing and writing high quality code. Familiarity
+with relational databases (MySQL, PostgreSQL) Knowledge of authentication and 
+authorization technologies (session based authentification, JWT, OAuth2, ...) 
+Eager to learn and expand your knowledge.
+
+Description
+• Development and maintenance of the information system
+• Evolution of business applications
+• Technological monitoring and proposing of new solutions
+
+
+job2:******************
+
+
+Dans le cadre d'un nouveau besoin nous recherchons un Développeur Fullstack Python sur Casablanca pour une mission freelance
+
+Missions :
+• Analyser l es besoins de l’infrastructure , puis proposer une architecture technique de la solution et rédiger les spécifications techniques.
+• Développer des programmes avec différents niveaux de complexité en utilisant le langage Python/Django, les API et le langage SQL.
+• Tester, configurer et déployer les solutions dans l’environnement RHEL.
+• Animer les ateliers de travail avec les équipes Infrastructure et partager l’avancement de vos réalisations
+• Un profil sénior de formation Ingénieur Grande Ecole, possédant 10 ans et plus d’expérience , dont 5 ans minimum de développement en Python.
+
+Compétence du profil :
+• FullStack Python (Django, API, Rest).
+• Bases de données (PostgreSQL…) et langage SQL.
+• Gestion de version Git.
+• Environnent Linux.
+• Aisance relationnelle.
+• Connaissances des problématiques IT spécifiques à l’infrastructure et à l’automatisation du système et réseaux sont appréciées
+
+Job3:********************************************
+
+Analyser les besoins de l’infrastructure, puis proposer une architecture technique de la solution et rédiger les spécifications techniques.
+
+Développer des programmes avec différents niveaux de complexité en utilisant le langage Python/Django, les API et le langage SQL.
+Tester, configurer et déployer les solutions dans l’environnement RHEL.
+Animer les ateliers de travail avec les équipes Infrastructure et partager l’avancement de vos réalisations.
+
+Profil recherché pour le poste : Développeur Fullstack Python
+Un profil sénior de formation Ingénieur Grande Ecole, possédant 10 ans et plus d’expérience, dont 5 ans minimum de développement en Python.
+
+Compétence du profil :
+
+FullStack Python (Django, API, Rest).
+Bases de données (PostgreSQL…) et langage SQL.
+Gestion de version Git.
+Environnent Linux.
+Aisance relationnelle.
+Connaissances des problématiques IT spécifiques à l’infrastructure et à l’automatisation du système et réseaux sont appréciées.
+
+Critères de l'annonce pour le poste : Développeur Fullstack Python
+
+Métier :
+
+Informatique, nouvelles technologies
+
+Secteur d´activité :
+
+Informatique, SSII, Internet
+
+Type de contrat :
+
+CDI
+
+Région :
+
+Casablanca
+
+Ville :
+Casablanca
+
+Niveau d'expérience :
+Expérience > 10 ans
+
+Niveau d'études :
+Bac+5 et plus
+
+Langues exigées :
+
+français›courant
+
+Nombre de poste(s) :
+1

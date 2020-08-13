@@ -7,10 +7,8 @@ router.register('clients',views.ClientView)
 router.register('filepools',views.FilePoolView)
 router.register('files',views.FileView)
 
-
 urlpatterns = [
     path('',include(router.urls)),
-    path('filepool_cleaner/<int:id>/',views.filepool_clean)
 ]
 #https://www.django-rest-framework.org/api-guide/authentication/#:~:text=Authentication%20is%20the%20mechanism%20of,the%20request%20should%20be%20permitted.
 #https://github.com/consultIntrick/django-drive-storage

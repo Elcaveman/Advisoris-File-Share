@@ -71,6 +71,7 @@ class UserInterfaceHandler {
         this.parents.folders.removeEventListeners('dblclick');
         //add
         let folders_list = this.path.display_tree().dirs;
+        if (folders_list.length ==0)this.parents.folders.innerHTML = '<p>No directories</p>';
 
         folders_list.forEach((folder, i) => {
             this.parents.folders.innerHTML += this.template.folder(folder, i);
@@ -99,15 +100,20 @@ class UserInterfaceHandler {
         //clean
         this.parents.files.innerHTML = '';
         //add
+        
         if (this.path.convert_path_to_tree()['filepool']){
             let files_list_promise = this.path.display_tree().files;
             files_list_promise.then((files_list) => {
-                for (let i = 0; i < files_list.length; i++) {
-                    const elt = document.createElement('div');
-                    elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path,files_list[i].size,files_list[i].type,files_list[i].year);
-                    this.parents.files.appendChild(elt);
-            }
-        })}
+                if (files_list.length==0) this.parents.files.innerHTML = '<p>No Files</p>';
+                else{
+                    for (let i = 0; i < files_list.length; i++) {
+                        const elt = document.createElement('div');
+                        elt.innerHTML = this.template.file(files_list[i].display_name, files_list[i].file_path,files_list[i].size,files_list[i].type,files_list[i].year);
+                        this.parents.files.appendChild(elt);}
+                }
+            })
+        }
+        else this.parents.files.innerHTML = '<p>No Files</p>';
     }
     create_layout() {
         //step1: get current tree and parse it

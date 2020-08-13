@@ -1,3 +1,12 @@
+function utils_purge(data){
+    let new_data = {};
+    new_data['id']=data['id'];
+    new_data['display_name']=data['display_name'];
+    new_data['file_path']=data['file_path'];
+    new_data['filepool']=data['filepool'];
+    new_data['year']=data['year'];
+    return JSON.stringify(new_data);
+}
 class AdminInterfaceHandler {
     constructor(init_tree, target_client, api) {
         this.api = api
@@ -21,7 +30,7 @@ class AdminInterfaceHandler {
             </td>
         </tr>`,
 
-            file: (data, i) => `<tr id="${data['id']}" type="file" data ="${data}">
+            file: (data, i) => `<tr id="${data['id']}" type="file" data =${utils_purge(data)}>
             <td>
                 ${get_img(data['type'])}
                 <span>${data['display_name']}</span>
@@ -120,7 +129,7 @@ class AdminInterfaceHandler {
     }
 
     manage_files(){
-        if (this.path.convert_path_to_tree()['filepool']!==0){
+        if (this.path.convert_path_to_tree()['filepool']!==0 && this.path.display_tree().files){
             let files_list_promise = this.path.display_tree().files;
             files_list_promise.then((files_list) => {
                 for (let i = 0; i < files_list.length; i++) {
@@ -181,57 +190,76 @@ class AdminInterfaceHandler {
             let self = this;
             function handler(data){
                 try {
-                    const filepool = self.path.convert_path_to_tree().filepool;
-                    const created_filepool = false;
-                    if (filepool == 0){
+                    const filepool = self.path.convert_path_to_tree()['filepool'];
+                    if (filepool === 0){
                         try {
-                            const id = self.api.create_filepool(data['owner'],data['path']).then((res)=>res.id);
+                            const pool = self.api.create_filepool(self.target_client,self.path.current_path).then((res)=>res.json());
                             try {
-                                self.api.create_file(data['file_name'],data['file_path'],id,data['year']);
-                                self.path.convert_path_to_tree().filepool = id;
-                                self.api.update_file_tree(JSON.stringify(self.path.tree_copy) ,self.target_client);
-                                self.create_layout();
-                                }
+                                pool.then((json)=>{
+                                    data.append('filepool',parseInt(json['id'],10));
+                                    self.api.create_file(data);
+                                    self.path.convert_path_to_tree().filepool = json['id'];
+                                    self.api.update_file_tree(JSON.stringify(self.path.tree_copy) ,self.target_client);
+                                    self.create_layout();
+                                    return true
+                                })
+                            }
                             catch (error) {
                                 M.toast({html:error,classes:'red rounded' , displatLength:2000});
                                 self.api.delete_filepool(id);
-                                return 0;
+                                return false;
                             }
                         } catch (error) {
                             M.toast({html:error,classes:'red rounded' , displatLength:2000});
-                            return 0;
+                            return false;
                         }
                     }
                     else{
                         try {
-                            self.api.create_file((data['file_name'],data['file_path'],filepool,data['year']));
+                            data.append('filepool',parseInt(filepool,10));
+                            self.api.create_file(data);
                             self.create_layout();
+                            return true;
                         } catch (error) {
                             M.toast({html:error,classes:'red rounded' , displatLength:2000});
                             return 0;}
                     }
                 } catch (error) {
-                    M.toast({html:error,classes:'red rounded' , displatLength:2000})
+                    M.toast({html:error,classes:'red rounded' , displatLength:2000});
+                    return false;
                 }
             }
-            this.parents.forms.querySelector('#file_form').classList.remove('hidden');
-            let submit_file = this.forms.FileForm.querySelector('button');
-            submit_file.addEventListener(('click'),(event)=>{
+            async function f(event){
                 event.preventDefault();
-                const data = {
-                    file_name:this.forms.FileForm.querySelector('#file_name').value,
-                    file_path:this.forms.FileForm.querySelector('#file_path').files[0],//get the downloaded file from the input
-                    year:this.forms.FileForm.querySelector('#year').value,
-                }
+                let data = new FormData();
+                let display_name;
+                //handles duplicate display name!
+                const file_list = await self.path.display_tree().files
+                if (file_list){
+                        display_name= resolve_name(self.forms.FileForm.querySelector('#file_name').value,file_list,'display_name');
+                    }
+                else{
+                        display_name= self.forms.FileForm.querySelector('#file_name').value
+                    }
+                
+                
+                data.append('display_name',display_name);
+                data.append('file_path',self.forms.FileForm.querySelector('#file_path').files[0]);
+                data.append('year',self.forms.FileForm.querySelector('#year').value);
+
                 if (handler(data)){
                     M.toast({html:'File created successfully!',classes:'green rounded' , displatLength:2000});
                 }
                 else{
                     M.toast({html:'Try again',classes:'gray rounded' , displatLength:2000});
                 }
-                this.parents.forms.querySelector('#file_form').classList.add('hidden');
+                self.parents.forms.querySelector('#file_form').classList.add('hidden');
                 submit_file.removeEventListeners('click');
-            })
+            }
+
+            this.parents.forms.querySelector('#file_form').classList.remove('hidden');
+            let submit_file = this.forms.FileForm.querySelector('#save_file');
+            submit_file.addEventListener('click',f)
         });
 
         this.actionButtons.add_folder.addEventListener('click',(event)=>{
@@ -241,7 +269,6 @@ class AdminInterfaceHandler {
                     self.path.utils_create_subtree(null,data['folder_name'],0);
                     //REMOVE JSON.STRINGIFY ONCE ON PRODUCTION (postgres has a JSONfield)
                     self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client);
-
                     self.create_layout();
                     return true;
                 } catch (error) {
@@ -250,7 +277,7 @@ class AdminInterfaceHandler {
                 }
             }
             this.parents.forms.querySelector('#folder_form').classList.remove('hidden');
-            let submit_folder = this.forms.FolderForm.querySelector('button');
+            let submit_folder = this.forms.FolderForm.querySelector('#save_folder');
             submit_folder.addEventListener(('click'),(event)=>{
                 event.preventDefault();
                 const data = {
@@ -275,22 +302,37 @@ class AdminInterfaceHandler {
                 let element_type = this.selected_item.getAttribute('type');
                 if (element_type ==='folder'){
                     this.path.utils_delete_subtree(null,element_id);
-                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client);
+                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client)
+                    .then(r=>this.create_layout());
                 }
                 if (element_type === 'file'){
-                    let element_data = this.selected_item.getAttribute('data')
-                    this.api.delete_file(element_id);
-                    this.api.clean_filepool(this.convert_path_to_tree()['filepool']).then((resp)=>{
-                        if (resp){
-                            this.convert_path_to_tree()['filepool'] = 0;
-                            this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client);
-                        }
-                    });
+                    //let element_data = JSON.parse(this.selected_item.getAttribute('data'));
+                    let self = this;
+                    this.api.delete_file(element_id)
+                    .then(()=>{
+                        this.path.display_tree().files.then(resp=>{
+                            if (resp.length ===0)return true;
+                            else return false;
+                        }).then(bool=>{
+                            if(bool){
+                                this.api.delete_filepool(this.path.convert_path_to_tree()['filepool'])
+                                .then(()=>{
+                                    this.path.convert_path_to_tree()['filepool'] = 0;
+                                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client)
+                                    .then((r)=>{
+                                        //console.log(r);
+                                        this.create_layout()});
+                                })
+                            }
+                            else{
+                                this.create_layout();
+                            }
+                        })
+                    })    
                 }
-                this.create_layout();
             }
             else{
-                M.toast({html:'Select a fiel or a folder',classes:'red rounded' , displatLength:2000})
+                M.toast({html:'Select a file or a folder',classes:'red rounded' , displatLength:2000})
             }
         });
 
@@ -320,7 +362,7 @@ class AdminInterfaceHandler {
                 if (element_type ==='folder'){
                     //show form
                     this.parents.forms.querySelector('#folder_form').classList.remove('hidden');
-                    let submit_folder = this.forms.FolderForm.querySelector('button');
+                    let submit_folder = this.forms.FolderForm.querySelector('#save_folder');
                     //populate form
                     this.forms.FolderForm.querySelector('#folder_name').value = element_data;
                     //listen to submit form
@@ -345,7 +387,7 @@ class AdminInterfaceHandler {
                 if (element_type == 'file'){
 
                     this.parents.forms.querySelector('#file_form').classList.remove('hidden');
-                    let submit_file = this.forms.FolderForm.querySelector('button');
+                    let submit_file = this.forms.FolderForm.querySelector('#save_file');
                     
                     this.forms.FileForm.querySelector('#file_name').value = element_data['display_name'];
 

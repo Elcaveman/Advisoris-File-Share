@@ -1,8 +1,14 @@
 function resolve_name(name, namelist, extra_field, counter = 0) {
     let name_resolved = counter == 0 ? name : `${name}_${counter}`;
     for (let i = 0; i < namelist.length; i++) {
+        if(extra_field){
         if (namelist[i][extra_field] === name_resolved) {
             return resolve_name(name, namelist, extra_field, counter + 1);
+        }}
+        else{
+            if (namelist[i] === name_resolved) {
+                return resolve_name(name, namelist, extra_field, counter + 1);
+            }
         }
     }
     return name_resolved; //?UT Done
@@ -79,11 +85,11 @@ class APIHandler {
             manage_clients: '/api/clients/',
             manage_filepools: '/api/filepools/',
             manage_files: '/api/files/',
-            clean_filepools:'/api/filepool_cleaner/'
+            // clean_filepools:(filepool_id)=>`/api/filepools/${filepool_id}/cleaner/`
         };
         //remember to use ... (spread operator when using default URls)
     }
-    async utils_fetch(url, request_method, body_data = null) {
+    async utils_fetch(url, request_method, body_data = null,stringify = true,form=false) {
         function getCookie(name) {
             //example: to get csrf Token name must be set to 'csrftoken'
             let cookieValue = null;
@@ -122,18 +128,36 @@ class APIHandler {
 
             } else if (request_method === 'POST' || request_method === 'PUT' || request_method==='PATCH') {
                 const csrftoken_ = getCookie('csrftoken');
+                let contentType = form?'multipart/form-data;boundary=simple boundary':'application/json';
                 //const urlencoded = new URLSearchParams(JSON.stringify(body_data));
+                if (form){
+                    // // We need to add a boundary parameter to the header
+                    // // We assume the first valid-looking boundary line in the body is correct
+                    // // regex is from RFC 2046 appendix A
+                    // var boundaryCharNoSpace = "0-9A-Z'()+_,-./:=?";
+                    // var boundaryChar = boundaryCharNoSpace + ' ';
+                    // var re = new RegExp('^--([' + boundaryChar + ']{0,69}[' + boundaryCharNoSpace + '])[\\s]*?$', 'im');
+                    // var boundary = data.match(re);
+                    // if (boundary !== null) {
+                    //   contentType += '; boundary="' + boundary[1] + '"';
+                    // }
+                    // // Fix textarea.value EOL normalisation (multipart/form-data should use CR+NL, not NL)
+                    // data = data.replace(/\n/g, '\r\n');
+
+                    // Use the FormData API and allow the content type to be set automatically,
+                    // so it includes the boundary string.
+                    contentType=false;
+                }
                 const defaults = {
                     'method': request_method,
                     'credentials': 'same-origin',
                     'headers': new Headers({
                         'X-CSRFToken': csrftoken_,
-                        'Content-Type':'application/json',
                     }),
-                    'body': JSON.stringify(body_data),
+                    'body': stringify?JSON.stringify(body_data):body_data,
                 };
+                contentType?defaults['headers'].append('Content-Type',contentType):false;
                 const response = await fetch(url, defaults);
-                console.log(response.json());
                 return response;
             }
         } catch (err) { alert(err); return false }
@@ -154,7 +178,6 @@ class APIHandler {
             try {
                 const owner = await this.get_client(client_id);
                 owner.file_tree = json_file_tree;//saved as text in the DB not as JSON !!!!
-                console.log(owner);
                 const response = await this.utils_fetch(url, 'PUT', owner);
                 return response;
 
@@ -175,10 +198,10 @@ class APIHandler {
         }
     }
 
-    async create_filepool(owner, path) {
+    async create_filepool(client_id, path) {
         const url = this.URLS.manage_filepools;
         try {
-            const response = await this.utils_fetch(url, 'POST', { 'owner': client_id, 'path': path });
+            const response = await this.utils_fetch(url, 'POST', { 'owner': client_id, 'path': path });//**
             return response;
         } catch (error) {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -186,7 +209,7 @@ class APIHandler {
     }
 
     async delete_filepool(filepool_id) {
-            url = `${this.URLS.manage_filepools}${filepool_id}/`;
+            const url = `${this.URLS.manage_filepools}${filepool_id}/`;
             try {
                 const response = await this.utils_fetch(url, 'DELETE');
                 return response;
@@ -208,7 +231,7 @@ class APIHandler {
 
     async get_files_by_filepool(filepool) {
         if (filepool != 0) {
-            const url = `${this.URLS.manage_files}?filepool=${filepool}&year=`;
+            const url = `${this.URLS.manage_files}?filepool=${filepool}`;
             try {
                 const response = await this.utils_fetch(url, 'GET');
                 return response;
@@ -216,18 +239,12 @@ class APIHandler {
                 M.toast({html:error,classes:'red rounded' , displatLength:2000});
             }
         }
-        return [];
     }
 
-    async create_file(display_name , file , filepool_id , year) {
+    async create_file(formdata) {
         const url = this.URLS.manage_files;
         try {
-            const response = await this.utils_fetch(url, 'POST',{
-                "display_name": display_name,
-                "file_path": file,
-                "filepool": filepool_id,
-                "year": year
-            });
+            const response = await this.utils_fetch(url, 'POST',formdata,false,true);
             return response;
         } catch (error) {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -252,7 +269,7 @@ class APIHandler {
         
     }
     async delete_file(file_id) {
-        url = `${this.URLS.manage_files}${file_id}/`;
+        const url = `${this.URLS.manage_files}${file_id}/`;
         try {
             const response = await this.utils_fetch(url, 'DELETE');
             return response;
@@ -261,16 +278,15 @@ class APIHandler {
         }
         return response;
     }
-    async clean_filepool(filepool_id){
-        url = `${this.URLS.clean_filepools}${filepool_id}/`
-        try {
-            const response = await this.utils_fetch(url,'DELETE');
-            return response;
-        } catch (error) {
-            M.toast({html:error,classes:'red rounded' , displatLength:2000});
-        }
+    // async clean_filepool(filepool_id){
+    //     const url = this.URLS.clean_filepools(filepool_id);
+    //     try {
+    //         const response = await this.utils_fetch(url,'DELETE');
+    //     } catch (error) {
+    //         M.toast({html:error,classes:'red rounded' , displatLength:2000});
+    //     }
         
-    }
+    // }
 }
 
 // class UT_APIHandler {
@@ -414,14 +430,12 @@ class PathHandler {
             dirs: [], //{'dir1','dir2'...}
         }
         const tree = this.convert_path_to_tree();
-        console.log(tree);
-        if (tree["filepool"]!==0){
-             //{{id:...}(JSON returned by API *Promise) }
-            display_data.files = this.api.get_files_by_filepool(tree["filepool"]);
-        }
-        
         for (let i = 0; i < tree['subtrees'].length; i++) {
             display_data.dirs.push(tree['subtrees'][i]['display']);
+        }
+        if (tree["filepool"]){
+             //{{id:...}(JSON returned by API *Promise) }
+            display_data.files = this.api.get_files_by_filepool(tree["filepool"]);//promise
         }
         return display_data;
     }

@@ -1,16 +1,18 @@
 from functools import wraps
 
-# from django.contrib import messages
-from django.http import JsonResponse
-from rest_framework import status, viewsets
-from rest_framework.decorators import api_view
-from .permissions import Perm
 #from rest_framework.renderers import TemplateHTMLRenderer
 from fs.models import File, FilePool
+# from django.contrib import messages
+from rest_framework import status, viewsets
+from rest_framework.authentication import (BasicAuthentication,
+                                           SessionAuthentication)
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser,FormParser,JSONParser,FileUploadParser
 from user.models import Client
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from .serializers import (ClientSerializer,FilePoolSerializer,FileSerializer)
+from .permissions import Perm
+from .serializers import ClientSerializer, FilePoolSerializer, FileSerializer
 
 
 #TODO: unit test the api views
@@ -65,10 +67,19 @@ class FilePoolView(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             queryset = FilePool.objects.filter(owner=self.request.user)
         return queryset
+    # @action(detail=True,methods=['delete'])
+    # def cleaner(self,request,pk):
+    #     filepool = self.get_object()
+    #     if filepool:
+    #         if filepool.delete_if_empty():
+    #             return Response({"deleted":1},status=status.HTTP_200_OK)
+    #         return Response({"deleted":0},status=status.HTTP_200_OK)
+    #     return Response({},status=status.HTTP_404_NOT_FOUND)
 
 
 class FileView(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+    parser_classes = (MultiPartParser,FormParser,JSONParser,FileUploadParser)
     serializer_class = FileSerializer
     permission_classes = (Perm,)
     queryset = File.objects.all()
@@ -79,13 +90,3 @@ class FileView(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             queryset= File.objects.filter(filepool__owner=self.request.user)
         return queryset
-
-@api_view(['DELETE'])
-@user_required('staff')
-def filepool_clean(request,filepool_id):
-    filepool = FilePool.objects.get(filepool_id)
-    if filepool:
-        if filepool.delete_if_empty():
-            return JsonResponse({"status":200,"deleted":1})
-        return JsonResponse({"status":200,"deleted":0})
-    return JsonResponse({"status":404})

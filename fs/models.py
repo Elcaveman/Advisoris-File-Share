@@ -4,10 +4,12 @@ from django.db import models
 #helper functions
 def file_directory_path(instance, filename):
         # file will be uploaded to MEDIA_ROOT/uploads/user_<id>/<filename>
-        return f'uploads/{instance.get_user.id}/{instance.creation_date.year}/{filename}'
+        return f'uploads/{instance.get_user.id}/{instance.year}/{filename}'
 
 class FilePool(models.Model):
     #node_code is the id of the FilePool since it auto increments and never change on delete
+    class Meta:
+        unique_together = ('owner', 'path',)
     owner = models.ForeignKey("user.Client", verbose_name="Client id", on_delete=models.CASCADE , related_name='filepools')
     path = models.CharField(max_length=200, blank=True, null=True)
     def __str__(self):
@@ -68,7 +70,11 @@ class File(models.Model):
         
     def __str__(self):
         return self.filename
-    def delete(self,*args,**kwargs):
-        self.file_path.delete()
-        super().delete(*args,**kwargs)
+
+    # def delete(self,*args,**kwargs):
+    #     try:
+    #         self.file_path.delete()
+    #     except:
+    #         pass
+    #     super().delete(*args,**kwargs)
     
