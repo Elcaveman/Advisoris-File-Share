@@ -24,7 +24,7 @@
                     <button id="prev" class="waves-effect waves-light btn"><i class="fas fa-arrow-left fa-2x"></i></button>
                 </div>
                 <div class='path-wrapper' style="display: flex;">
-                    <input type="text" id="path">
+                    <input type="text" id="path" class="validate">
                     <button id="validate_path" class="waves-effect waves-light btn"><i class="fas fa-check-circle"></i></button>
                 </div>
 
@@ -43,7 +43,8 @@
                     <form id="file_form" class='hidden' enctype="multipart/form-data" novalidate>
                         <label for="file_name">File Name</label>
                         <input type="text" id='file_name'>
-                       
+
+                        <label for="file_path">File</label>
                         <p class="file-upload">Currently: <a href="#" id="current_file" target="_blank" rel="noopener noreferrer"></a><br>
                             Change:
                             <input type="file" id="file_path">
@@ -54,6 +55,7 @@
                         <input type="submit" value="Save" id='save_file' class="waves-effect waves-light btn">
                     </form>
                     <form action="" method ="post" id ='folder_form' class='hidden' , novalidate>
+                        <label for="folder_name">Folder Name</label>
                         <input type="text" id='folder_name'>
                         <input type="submit" value="Save" id='save_folder' class="waves-effect waves-light btn">
                     </form>

@@ -252,6 +252,14 @@ nav.clean .breadcrumb:last-child {
 .hidden {
     display: none;
 }
+/*forms*/
+.forms{
+    margin:1rem;
+    max-width: 70vw;
+    border: 5px block #777;
+}
+
+/*FS*/
 .FS-action-buttons{
     max-width: min(500px,80vw);   
 }
