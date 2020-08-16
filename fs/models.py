@@ -71,10 +71,10 @@ class File(models.Model):
     def __str__(self):
         return self.filename
 
-    # def delete(self,*args,**kwargs):
-    #     try:
-    #         self.file_path.delete()
-    #     except:
-    #         pass
-    #     super().delete(*args,**kwargs)
+    def delete(self,*args,**kwargs):
+        try:
+            self.file_path.delete()
+        except:
+            pass
+        super().delete(*args,**kwargs)
     

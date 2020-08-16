@@ -1,62 +1,61 @@
 {% extends "admin/base_site.html" %}{% load static %} {% block extrastyle %}
 <!-- <link rel="stylesheet" href="{% static 'css/tail.select-light-feather.min.css' %}"> -->
-<!-- <link rel="stylesheet" href="{% static 'css/font_awsome.min.css' %}" class="css"> -->
-<link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endblock %} {% block content %}
+<link rel="stylesheet" href="{% static 'css/materialize.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/font_awsome.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endblock %} 
+{% block content_title %}<h3>Add files</h3>{% endblock %}
+{% block content %}
 <!-- 
 <form enctype="multipart/form-data" action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate> -->
-<div class="related-widget-wrapper" id = 'wraps-client'>
-    <label for="id_select">Chose Client: </label>
-    <select required="" id="client-choice"></select>
+<div class="related-widget-wrapper" id = 'wraps-client' style="display:flex;margin-bottom:2rem">
+    <label for="id_select" style="font-size: 1.25rem;align-self:center;padding-right:0.5rem;white-space: nowrap;">Chose Client: </label>
+    <select required="" id="client-choice" style="display:block;max-width:600px;"></select>
     <!-- link for update -->
-    <a class="related-widget-wrapper-link change-related" id="change_id_owner_id" data-href-template="/admin/user/client/__fk__/change/?_to_field=id&amp;_popup=1" title="Change selected client" href="/admin/user/client/1/change/?_to_field=id&amp;_popup=1"><img src="/static/admin/img/icon-changelink.svg" alt="Change"></a>
+    <a class="related-widget-wrapper-link change-related" id="change_id_owner_id" data-href-template="/admin/user/client/__fk__/change/?_to_field=id&amp;_popup=1" title="Change selected client" href="/admin/user/client/1/change/?_to_field=id&amp;_popup=1" style="align-self: center;"><img src="/static/admin/img/icon-changelink.svg" alt="Change" style="width: 25px;height:25px;padding:0 0.3rem;"></a>
     <!-- link for add -->
-    <a class="related-widget-wrapper-link add-related" id="add_id_owner_id" href="/admin/user/client/add/?_to_field=id&amp;_popup=1" title="Add another client"><img src="/static/admin/img/icon-addlink.svg" alt="Add"></a>
+    <a class="related-widget-wrapper-link add-related" id="add_id_owner_id" href="/admin/user/client/add/?_to_field=id&amp;_popup=1" title="Add another client" style="align-self:center;"><img src="/static/admin/img/icon-addlink.svg" alt="Add" style="width: 25px;height:25px;padding:0 0.3rem;"></a>
 
 </div>
 <main>
     <div class="related-widget-wrapper">
-        <div class='interface-wrapper'>
+        <div class='interface-wrapper hidden'>
             <div class="navigation" id='wrap-navigation'>
                 <div class="navigation-buttons">
-                    <button id="prev" class="waves-effect waves-light btn"><i class="fa fa-arrow-left"></i></button>
-                    <!-- <button id="post" class="waves-effect waves-light btn"><i class="fa fa-arrow-right"></i></button> -->
+                    <button id="prev" class="waves-effect waves-light btn"><i class="fas fa-arrow-left fa-2x"></i></button>
                 </div>
-                <div class='path-wrapper'>
-                    <input type="text">
-                    <button id="validate_path"><i>validate_path</i></button>
+                <div class='path-wrapper' style="display: flex;">
+                    <input type="text" id="path">
+                    <button id="validate_path" class="waves-effect waves-light btn"><i class="fas fa-check-circle"></i></button>
                 </div>
 
             </div>
 
             <div class="interface">
+                
                 <div class="FS-action-buttons" id='wrap-actionButtons'>
                     <button id="add_file" class="waves-effect waves-light btn"><i class="fa fa-plus"></i></button>
                     <button id="add_dir" class="waves-effect waves-light btn"><i class="fas fa-folder-plus"></i></button>
 
-                    <button id="delete" class="waves-effect waves-light btn"><i class="fas fa-folder-minus"></i></button>
+                    <button id="delete" class="waves-effect waves-light btn"><i class="fas fa-trash-alt"></i></button>
                     <button id="edit" class="waves-effect waves-light btn"><i class="fas fa-pen"></i></button>
-                    
-                    <button id="undo" class="waves-effect waves-light btn"><i class="fa fa-undo"></i></button>
-                    <button id="redo" class="waves-effect waves-light btn"><i class="fas fa-redo"></i></button>
-
                 </div>
                 <div class='forms' id='wrap-forms'>
                     <form id="file_form" class='hidden' enctype="multipart/form-data" novalidate>
                         <label for="file_name">File Name</label>
                         <input type="text" id='file_name'>
                        
-                        <p class="file-upload">Currently: <a href="#" id="current_file"></a><br>
+                        <p class="file-upload">Currently: <a href="#" id="current_file" target="_blank" rel="noopener noreferrer"></a><br>
                             Change:
                             <input type="file" id="file_path">
                         </p>
 
                         <label for="year">year</label>
                         <input type="number" id='year'>
-                        <input type="submit" value="Save" id='save_file'>
+                        <input type="submit" value="Save" id='save_file' class="waves-effect waves-light btn">
                     </form>
                     <form action="" method ="post" id ='folder_form' class='hidden' , novalidate>
                         <input type="text" id='folder_name'>
-                        <input type="submit" value="Save" id='save_folder'>
+                        <input type="submit" value="Save" id='save_folder' class="waves-effect waves-light btn">
                     </form>
                 </div>
                 <div class="FS-table" id ='wrap-table'>
@@ -113,16 +112,14 @@
 {% endblock content %} {% block footer %}
 <script src="{% static 'js/materialize.min.js' %}"></script>
 <script>
-    const pdf_image_url = '<i class="fas fa-file-pdf"></i>';
-    const txt_image_url = '<i class="fas fa-file-alt"></i>';
-    const xlsx_image_url = '<i class="fas fa-file-excel"></i>';
-    const docx_image_url = '<i class="fas fa-file-word"></i>';
-    const other_image_url = '<i class="fas fa-question-circle"></i>';
+    const pdf_image_url = '<i class="fas fa-file-pdf fa-2x ico"></i>';
+    const txt_image_url = '<i class="fas fa-file-alt fa-2x ico"></i>';
+    const xlsx_image_url = '<i class="fas fa-file-excel fa-2x ico"></i>';
+    const docx_image_url = '<i class="fas fa-file-word fa-2x ico"></i>';
+    const other_image_url = '<i class="fas fa-question-circle fa-2x ico"></i>';
 </script>
 <script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/FSHandler.js' %}"></script>
 <script src="{% static 'js/AdminUI.js' %}"></script>
-<script>
-
-</script>
+<script src="{% static 'js/popup.js' %}"></script>
 {% endblock footer %}

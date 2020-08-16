@@ -23,19 +23,15 @@ from .forms import FilePoolForm, UserInfo,FileForm
  
 #custom html
 #change_list_template = 'admin/snippets/snippets_change_list.html'
+
+admin.site.site_header = 'File System'
+admin.site.site_title = 'Advisoris'
+admin.site.index_title = 'welcome to Advisoris FS'
+
+
 class FileManagementAdmin(admin.ModelAdmin):
-    # fieldsets = (('File Path',{'fields':(),}),
-    # ('File Information',{'fields':('display_name','year',)}),
-    # (None,{'fields':('file_pool','file_path')})
-    # )
-    # add_fieldsets = ( (None, {
-    #         'classes': ('wide',),
-    #         'fields': ('year',),
-    #     }),)
-    
-    #! find some way to use file_pool to get owner for filtering by client
     list_display = ('display_name','year','filepool',)
-    list_filter = ('filepool__owner__client_name','year')
+    list_filter = ('filepool__owner__client_name','year','filepool')
     search_fields = ('display_name',)
     
     readonly_fields = ('creation_date',)
@@ -71,5 +67,4 @@ class ClientAdmin(UserAdmin):
 
 admin.site.register(Client , ClientAdmin)
 admin.site.unregister(Group)
-admin.site.register(FilePool)
 admin.site.register(File , FileManagementAdmin)

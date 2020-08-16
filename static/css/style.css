@@ -193,7 +193,7 @@ nav.clean .breadcrumb:last-child {
 
 
 /*?admin specific styles*/
-
+/* 
 #redo::after {
     content: 'Redo';
     display: block;
@@ -210,7 +210,7 @@ nav.clean .breadcrumb:last-child {
 
 #undo:hover::after {
     size: 50px;
-}
+} */
 
 #add_dir::after {
     content: 'add folder';
@@ -242,8 +242,44 @@ nav.clean .breadcrumb:last-child {
 
 .navigation {
     display: flex;
+    margin: 1.5rem;
 }
-
+#path{
+    font-size: 15px;
+    margin: 0 2rem;
+    min-width:min(500px,100vw);
+}
 .hidden {
     display: none;
+}
+.FS-action-buttons{
+    max-width: min(500px,80vw);   
+}
+.FS-action-buttons .btn{
+    max-width: 100px;
+}
+.FS-table{
+    margin-top:1rem;
+    max-width: 90vw;
+    
+}
+.FS-table thead tr{
+    background-color: #26a69a;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+    font-size: 20px;
+}
+.FS-table td{
+    border:2px solid #ddd;
+}
+.ico{
+    color:#71c5bd;
+}
+.selected {
+    background-color: #7ad0c7;
+    color: #f3f3f3;
+}
+.selected i{
+    color:#f3f3f3;
 }

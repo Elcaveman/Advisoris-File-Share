@@ -5,6 +5,7 @@ function utils_purge(data){
     new_data['file_path']=data['file_path'];
     new_data['filepool']=data['filepool'];
     new_data['year']=data['year'];
+    new_data['type']=data['type'];
     return JSON.stringify(new_data);
 }
 class AdminInterfaceHandler {
@@ -16,7 +17,7 @@ class AdminInterfaceHandler {
         this.template = {
             folder: (folder_name, i) => `<tr id="${folder_name}" type="folder">
             <td>
-                <i class="fa fa-folder"></i>
+                <i class="fa fa-folder fa-2x ico"></i>
                 <span>${folder_name}</span>
             </td>
             <td>
@@ -65,9 +66,13 @@ class AdminInterfaceHandler {
             edit_element: this.parents.actionButtons.querySelector('#edit'),
         }
         //init's
+        this.init()
         this.init_navigation();
         this.init_actionButtons();
         this.create_layout();
+    }
+    init(){
+        document.querySelector('.interface-wrapper').classList.remove('hidden');
     }
     init_navigation(){
         let path_input = this.parents.navigation.querySelector('input');
@@ -96,13 +101,15 @@ class AdminInterfaceHandler {
                 M.toast({html:"Invalid path",classes:'red rounded' , displatLength:2000})
             }
         })
+    
         prev_button.addEventListener('click',(event)=>{
             const list = resolve_path(this.path.current_path);
             let vpath;
             let response = false;
             if (list.length>1){
                 list.pop();
-                vpath = assemble_path(list,0,list.length);
+                vpath = assemble_path(list,0,list.length-1);
+                console.log(vpath);
                 response = this.path.utils_validate_path(vpath);
             }
             else{
@@ -120,6 +127,11 @@ class AdminInterfaceHandler {
             else{
                 M.toast({html:"Invalid path",classes:'red rounded' , displatLength:2000})
             }
+        })
+
+        path_input.addEventListener("keyup", event => {
+            if (event.Code === 'Enter') path_validate.click();
+            if (event.Code === 'Backspace') prev_button.click()
         })
     }
     clean_table(){
@@ -177,7 +189,9 @@ class AdminInterfaceHandler {
                 if (clicked_item.localName === 'span' ||clicked_item.localName === 'i') {
                     clicked_item = clicked_item.parentElement.parentElement
                 }
+                if (this.selected_item)this.selected_item.classList.remove('selected');
                 this.selected_item = clicked_item;
+                this.selected_item.classList.add('selected');
             }
         })
     }
@@ -186,8 +200,17 @@ class AdminInterfaceHandler {
         path_input.value = this.path.current_path;
     }
     init_actionButtons() {
+        //add click handler for the whole div to know if another button was clicked!
+        function clean_forms(self){
+            self.parents.forms.querySelector('#folder_form').classList.add('hidden');
+            self.forms.FolderForm.querySelector('#save_folder').removeEventListeners('click');
+            self.parents.forms.querySelector('#file_form').classList.add('hidden');
+            self.forms.FileForm.querySelector('#save_file').removeEventListeners('click');
+            }
+        
         this.actionButtons.add_file.addEventListener('click',(event)=>{
             let self = this;
+            clean_forms(self);
             function handler(data){
                 try {
                     const filepool = self.path.convert_path_to_tree()['filepool'];
@@ -200,9 +223,10 @@ class AdminInterfaceHandler {
                                     self.api.create_file(data);
                                     self.path.convert_path_to_tree().filepool = json['id'];
                                     self.api.update_file_tree(JSON.stringify(self.path.tree_copy) ,self.target_client);
-                                    self.create_layout();
-                                    return true
+                                    
                                 })
+                                .then(()=>self.create_layout());
+                                return true;
                             }
                             catch (error) {
                                 M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -217,12 +241,11 @@ class AdminInterfaceHandler {
                     else{
                         try {
                             data.append('filepool',parseInt(filepool,10));
-                            self.api.create_file(data);
-                            self.create_layout();
+                            self.api.create_file(data).then(()=>self.create_layout());
                             return true;
                         } catch (error) {
                             M.toast({html:error,classes:'red rounded' , displatLength:2000});
-                            return 0;}
+                            return false;}
                     }
                 } catch (error) {
                     M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -264,6 +287,7 @@ class AdminInterfaceHandler {
 
         this.actionButtons.add_folder.addEventListener('click',(event)=>{
             let self = this;
+            clean_forms(self);
             function handler(data){
                 try {
                     self.path.utils_create_subtree(null,data['folder_name'],0);
@@ -296,36 +320,43 @@ class AdminInterfaceHandler {
         });
 
         this.actionButtons.delete_element.addEventListener('click',(event)=>{
-            if (this.selected_item){
+            let self = this;
+            clean_forms(self);
+            if (self.selected_item){
                 
-                let element_id = this.selected_item.getAttribute('id');
-                let element_type = this.selected_item.getAttribute('type');
+                let element_id = self.selected_item.getAttribute('id');
+                let element_type = self.selected_item.getAttribute('type');
                 if (element_type ==='folder'){
-                    this.path.utils_delete_subtree(null,element_id);
-                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client)
-                    .then(r=>this.create_layout());
+                    self.path.utils_delete_subtree(null,element_id).then(()=>{
+                        self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client)
+                        .then(r=>{
+                            self.create_layout();
+                            M.toast({html:'folder deleted successfully',classes:'green rounded' , displatLength:2000})
+                        });
+                    })
+                    
                 }
                 if (element_type === 'file'){
                     //let element_data = JSON.parse(this.selected_item.getAttribute('data'));
-                    let self = this;
-                    this.api.delete_file(element_id)
+                    self.api.delete_file(element_id)
                     .then(()=>{
-                        this.path.display_tree().files.then(resp=>{
+                        self.path.display_tree().files.then(resp=>{
                             if (resp.length ===0)return true;
                             else return false;
                         }).then(bool=>{
                             if(bool){
-                                this.api.delete_filepool(this.path.convert_path_to_tree()['filepool'])
+                                self.api.delete_filepool(self.path.convert_path_to_tree()['filepool'])
                                 .then(()=>{
-                                    this.path.convert_path_to_tree()['filepool'] = 0;
-                                    this.api.update_file_tree(JSON.stringify(this.path.tree_copy),this.target_client)
+                                    self.path.convert_path_to_tree()['filepool'] = 0;
+                                    self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client)
                                     .then((r)=>{
-                                        //console.log(r);
-                                        this.create_layout()});
+                                        self.create_layout();
+                                        M.toast({html:'file deleted successfully',classes:'green rounded' , displatLength:2000});
+                                    });
                                 })
                             }
                             else{
-                                this.create_layout();
+                                self.create_layout();
                             }
                         })
                     })    
@@ -337,14 +368,16 @@ class AdminInterfaceHandler {
         });
 
         this.actionButtons.edit_element.addEventListener('click',(event)=>{
+            let self = this;
+            clean_forms(self);
             if (this.selected_item){
                 let self = this;
-                function handle_file(element_id,data){
+                function handle_file(data){
                     try {
-                        self.api.update_file(element_id,data.file_path,data.file_name , data.filepool , data.year);
-                        M.toast({html:'File updated succesfully!',classes:'green rounded' , displatLength:2000});
+                        self.api.update_file(data).then(()=>self.create_layout());
                         return true;
                     } catch (error) {
+                        console.log(error)
                         M.toast({html:error,classes:'red rounded' , displatLength:2000});
                         return false;
                     }
@@ -352,11 +385,28 @@ class AdminInterfaceHandler {
                 }
 
                 function handle_folder(element_id,data){
-                    self.path.utils_update_subtree(null,element_id,data.folder_name,null,null);
-                    self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client);
+                    try {
+                        self.path.utils_update_subtree(null,element_id,data.folder_name);
+                        self.api.update_file_tree(JSON.stringify(self.path.tree_copy),self.target_client);
+                        self.create_layout();
+                        return true;
+                        
+                    } catch (error) {
+                        return false;
+                    }
+                    
                 }
+                //1- get the element id
+                //2- fetch that element data (already saved in the html elt)
+                //3- populate the form with existing data
+                //4-listen for save button
+                //4*file  -> 1- reload new values into FormData object
+                //4*file  -> 2- use apihandler to update the file
+                //4*folder-> 1- update_subtree with the same display_name
+                //4*folder-> 2- use api to update_filetree
+
                 let element_id = this.selected_item.getAttribute('id');
-                let element_data = this.selected_item.getAttribute('data');
+                let element_data = JSON.parse(this.selected_item.getAttribute('data'));
                 let element_type = this.selected_item.getAttribute('type');                
                 
                 if (element_type ==='folder'){
@@ -365,14 +415,14 @@ class AdminInterfaceHandler {
                     let submit_folder = this.forms.FolderForm.querySelector('#save_folder');
                     //populate form
                     this.forms.FolderForm.querySelector('#folder_name').value = element_data;
-                    //listen to submit form
+                    //listen to submit
                     submit_folder.addEventListener(('click'),(event)=>{
                         event.preventDefault();
                         const data = {
                             folder_name:this.forms.FolderForm.querySelector('#folder_name').value,
                         }
-                        if (handle_folder(data)){
-                            M.toast({html:'Folder created successfully!',   classes:'green rounded' , displatLength:2000});
+                        if (handle_folder(element_id,data)){
+                            M.toast({html:'Folder Updated successfully!',classes:'green rounded' , displatLength:2000});
                         }
                         else{
                             M.toast({html:'Try again',classes:'gray rounded' ,  displatLength:2000});
@@ -380,55 +430,80 @@ class AdminInterfaceHandler {
                         //hide form
                         this.parents.forms.querySelector('#folder_form').classList.add('hidden');
                         submit_folder.removeEventListeners('click');
+                        
                     })
                 
                 }
 
                 if (element_type == 'file'){
+                    //populate forms (HTML / object) with data
+                    function showFile(blob,file_type,file_name){
+                        let newBlob = new Blob([blob],{type:`application/${file_type}`})
 
-                    this.parents.forms.querySelector('#file_form').classList.remove('hidden');
-                    let submit_file = this.forms.FolderForm.querySelector('#save_file');
-                    
-                    this.forms.FileForm.querySelector('#file_name').value = element_data['display_name'];
-
-                    this.forms.FileForm.querySelector('#current_file').setAttribute('href',element_data['file_path']);
-                    this.forms.FileForm.querySelector('#current_file').inenerText = element_data['file_path'].split('/').pop();
-
-                    this.forms.FileForm.querySelector('#year').value = element_data['year'];
-
-
-                    submit_file.addEventListener(('click'),(event)=>{
-                        event.preventDefault();
-                        const data = {
-                            file_name:this.forms.FileForm.querySelector('#file_name').value,
-                            filepool:element_data['filepool'],
-                            year:this.forms.FileForm.querySelector('#year').value,
-                        }
-                        if (this.forms.FileForm.querySelector('#file_path').files[0]){
-                            data.file_path = this.forms.FileForm.querySelector('#file_path').files[0];
-                        }
-                        else{
-                            //fetch file from url and add it to the data object
-                            fetch(element_data['file_path']).then(res => data.file_path = res.blob());
-                        }
+                        let file = new File([newBlob],file_name, { type: newBlob.type })
                         
+                        return file;
+                    }
+                    async function populate_formData(element_data){
+                        // populate object with data
+                        console.log(element_data)
+                        let data = new FormData();
+                        data.append('id',element_id);
+                        data.append('filepool',element_data['filepool']);
+                        data.append('display_name',element_data['display_name']);
+                        data.append('year',element_data['year']);
+
+                        //porblem : blob isn't readable!!!
+                        const file = await fetch(element_data['file_path']).then(res=>res.blob()).then(blob=>showFile(blob,element_data['type'],element_data['display_name']));
+                        data.append('file_path',file);
+                        
+                        return data;
+                    }
+                    function populate_formHTML(element_data){
+                        // populate html with data
+                        self.forms.FileForm.querySelector('#file_name').value = element_data['display_name'] ;
+                        self.forms.FileForm.querySelector('#current_file').setAttribute('href' , element_data['file_path'])
+                        self.forms.FileForm.querySelector('#current_file').innerText = element_data['file_path'].split('/').pop();
+                        self.forms.FileForm.querySelector('#year').value = element_data['year'];
+                    }
+                    async function f(event){
+                        event.preventDefault();
+                        //get the original data
+                        let data = await populate_formData(element_data);
+                        //get the updated data
+
+                        if (self.forms.FileForm.querySelector('#file_name').value != element_data['display_name']){
+                            data.set('display_name',self.forms.FileForm.querySelector('#file_name').value);
+                        }
+                        if (self.forms.FileForm.querySelector('#year').value != element_data['year']){
+                            data.set('year',self.forms.FileForm.querySelector('#year').value);
+                        }
+                        if (self.forms.FileForm.querySelector('#file_path').files[0]){
+                            data.set('file_path',self.forms.FileForm.querySelector('#file_path').files[0]);
+                        }
+
                         if (handle_file(data)){
-                            M.toast({html:'File created successfully!',   classes:'green rounded' , displatLength:2000});
+                            M.toast({html:'File Updated successfully!',   classes:'green rounded' , displatLength:2000});
                         }
                         else{
                             M.toast({html:'Try again',classes:'gray rounded' ,  displatLength:2000});
                         }
-                        this.parents.forms.querySelector('#file_form').classList.add('hidden');
-                        submit_folder.removeEventListeners('click');
-                    })
+                        //hide form
+                        self.parents.forms.querySelector('#file_form').classList.add('hidden');
+                        this.removeEventListeners('click');
+                    }
+                    //show form
+                    this.parents.forms.querySelector('#file_form').classList.remove('hidden');
+                    populate_formHTML(element_data);
+                    let submit_file = this.forms.FileForm.querySelector('#save_file');
+                    submit_file.addEventListener(('click'),f)
                 }
             }
             else{
-                M.toast({html:'Select a fiel or a folder',classes:'red rounded' , displatLength:2000})
+                M.toast({html:'Select a file or a folder',classes:'red rounded' , displatLength:2000})
             }
         });
-        //add click handler for the whole div to know if another button was clicked!
-
+        
     }
 
     create_layout() {

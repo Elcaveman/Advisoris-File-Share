@@ -18,6 +18,7 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = ['id' ,'url','display_name','file_path','size','type','filepool' , 'year' ,'creation_date']
+        read_only_fields =['url','size','type','creation_date']
     def get_size(self,obj):
         return obj.size
     def get_type(self,obj):

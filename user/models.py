@@ -67,12 +67,14 @@ class ClientManager(BaseUserManager):
 #*
 class Client(AbstractBaseUser, PermissionsMixin):
     #Required fields
+    FILETREE_TEMPLATE = '{"display":"root","filepool":0,"subtrees":[]}'
     client_name = models.CharField(
         verbose_name = 'Client name',
         max_length=150,
         help_text='150 characters or fewer.',
         blank=True,
         null=True,
+        unique=True
     )
     
     email = models.EmailField(
@@ -99,7 +101,7 @@ class Client(AbstractBaseUser, PermissionsMixin):
     )
     #Specific user file tree
     #file_tree = JSONField("File Tree",blank=True,null=True)
-    file_tree = models.TextField("File Tree",blank = True , null = True)#JSONField()
+    file_tree = models.TextField("File Tree",blank = True ,default=FILETREE_TEMPLATE)#JSONField()
     #extra information (client data)
     date_joined = models.DateTimeField(verbose_name='Date joined', default=timezone.now)
     IF = models.CharField("IF", max_length=50,null=True)

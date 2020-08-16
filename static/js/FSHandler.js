@@ -250,18 +250,12 @@ class APIHandler {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
         }
     }
-    async update_file(file_id,display_name=null , fileBlob , filepool_id=null , year=null) {
+    async update_file(formdata) {
         // TODO: load current file path into the file_input
-        const url = `${this.URLS.manage_files}${file_id}/`;
-        const data = {};
-        //append to the data object
-        data['file_path']=fileBlob;
-        display_name?data['display_name']=display_name:false;
-        filepool_id?data['filepool']=filepool_id:false;
-        year?data['year']=year:false;
-        
+        const url = `${this.URLS.manage_files}${formdata.get('id')}/`;
+
         try {
-            const response = await this.utils_fetch(url, 'PATCH',data);
+            const response = await this.utils_fetch(url, 'PATCH',formdata,false,true);
             return response;
         } catch (error) {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -385,33 +379,36 @@ class PathHandler {
         return 'node created'
     }
     
-    utils_delete_subtree(path = null, display) {
-        function _disolute_subtree(tree) {
-            if (typeof(tree) == 'undefined') return;
+    async utils_delete_subtree(path = null, display) {
+        let self = this;
+        async function _disolute_subtree(tree) {
+            if (!tree) return;
             if (tree['filepool'] != 0) {
-                this.delete_filepool(tree['filepool']);
+                await self.api.delete_filepool(tree['filepool']);
                 for (let i = 0; i < tree['subtrees'].length; i++) {
-                    disolute_subtree(tree);
+                    await _disolute_subtree(tree['subtrees'][i]);
+                    }
                 }
             }
-        }
-        function _delete_subtree(tree, display) {
+        
+        async function _delete_subtrees(tree, display) {
             for (let i = 0; i < tree['subtrees'].length; i++) {
                 if (tree['subtrees'][i]['display'] === display) {
                     //splice(i, j) : starting at the index i delete j items
-                    _disolute_subtree(tree['subtrees'][i])
+                    await _disolute_subtree(tree['subtrees'][i]);
                     tree['subtrees'].splice(i, 1);
                     break;
                 }
             }
         }
-        _delete_subtree(this.convert_path_to_tree(path), display);
+        await _delete_subtrees(this.convert_path_to_tree(path), display);
+        
         return 'subtree deleted!'
     
     }
     utils_update_subtree(path_ = null, display, new_display, new_filepool=null, new_subtrees=null) {
         function _update_subtree(tree, display, new_display, filepool, subtrees) {
-            for (let i = 0; i < tree['subtrees'].length - 1; i++) {
+            for (let i = 0; i < tree['subtrees'].length; i++) {
                 if (tree['subtrees'][i]['display'] === display) {
                     tree['subtrees'][i]['display'] = new_display;
                     new_filepool?tree['subtrees'][i]['filepool'] = new_filepool:false;
@@ -420,7 +417,7 @@ class PathHandler {
                 }
             }
         }
-        _update_subtree(this.convert_path_to_tree(path), display, new_display, new_filepool, new_subtrees)
+        _update_subtree(this.convert_path_to_tree(path_), display, new_display, new_filepool, new_subtrees)
     }
     
 

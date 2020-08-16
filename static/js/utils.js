@@ -28,3 +28,6 @@ function get_img(file_type){
             break;
     }
 }
+function dismissChangeRelatedObjectPopup(win, objId, newRepr, newId) {
+    win.close();
+}
