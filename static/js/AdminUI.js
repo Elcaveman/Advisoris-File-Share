@@ -377,7 +377,6 @@ class AdminInterfaceHandler {
                         self.api.update_file(data).then(()=>self.create_layout());
                         return true;
                     } catch (error) {
-                        console.log(error)
                         M.toast({html:error,classes:'red rounded' , displatLength:2000});
                         return false;
                     }
@@ -392,6 +391,7 @@ class AdminInterfaceHandler {
                         return true;
                         
                     } catch (error) {
+                        M.toast({html:error,classes:'red rounded' , displatLength:2000});
                         return false;
                     }
                     
@@ -414,7 +414,7 @@ class AdminInterfaceHandler {
                     this.parents.forms.querySelector('#folder_form').classList.remove('hidden');
                     let submit_folder = this.forms.FolderForm.querySelector('#save_folder');
                     //populate form
-                    this.forms.FolderForm.querySelector('#folder_name').value = element_data;
+                    this.forms.FolderForm.querySelector('#folder_name').value = element_id;
                     //listen to submit
                     submit_folder.addEventListener(('click'),(event)=>{
                         event.preventDefault();
