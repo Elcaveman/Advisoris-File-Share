@@ -23,6 +23,10 @@ function get_img(file_type){
             return docx_image_url
             break;
         
+        case 'jpg':
+        case 'png':
+            return im_image_url
+            break;
         default:
             return other_image_url
             break;

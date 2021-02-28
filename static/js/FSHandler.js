@@ -76,7 +76,8 @@ function assemble_path(list, start, end) {
             });
         }
     };
-})(); //instant call
+})();
+//instant call
 
 // UT APIHandler DOne!!
 class APIHandler {
@@ -255,7 +256,7 @@ class APIHandler {
         const url = `${this.URLS.manage_files}${formdata.get('id')}/`;
 
         try {
-            const response = await this.utils_fetch(url, 'PATCH',formdata,false,true);
+            const response = await this.utils_fetch(url, 'PUT',formdata,false,true);
             return response;
         } catch (error) {
             M.toast({html:error,classes:'red rounded' , displatLength:2000});
@@ -419,8 +420,6 @@ class PathHandler {
         }
         _update_subtree(this.convert_path_to_tree(path_), display, new_display, new_filepool, new_subtrees)
     }
-    
-
     display_tree(path = null) {
         //UT Done
         const display_data = {

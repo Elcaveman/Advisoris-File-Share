@@ -68,7 +68,9 @@ class UserInterfaceHandler {
     manage_folders() {
         //clean
         this.parents.folders.innerHTML = '';
-        this.parents.folders.removeEventListeners('dblclick');
+        let isMobile = window.matchMedia("(max-width: 1061px)").matches;
+        let click_type = isMobile?'click':'dblclick'
+        this.parents.folders.removeEventListeners(click_type);
         //add
         let folders_list = this.path.display_tree().dirs;
         if (folders_list.length ==0)this.parents.folders.innerHTML = '<p>No directories</p>';
@@ -76,7 +78,7 @@ class UserInterfaceHandler {
         folders_list.forEach((folder, i) => {
             this.parents.folders.innerHTML += this.template.folder(folder, i);
         })
-        this.parents.folders.addEventListener('dblclick', (event) => {
+        this.parents.folders.addEventListener(click_type, (event) => {
             if (event.target !== event.currentTarget || event.target.getAttribute('data') !== 'folder') {
 
                 event.preventDefault();

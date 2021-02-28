@@ -438,15 +438,13 @@ class AdminInterfaceHandler {
                 if (element_type == 'file'){
                     //populate forms (HTML / object) with data
                     function showFile(blob,file_type,file_name){
-                        let newBlob = new Blob([blob],{type:`application/${file_type}`})
 
-                        let file = new File([newBlob],file_name, { type: newBlob.type })
-                        
+                        let file = new File([Blob],file_name, { type:`application/${file_type}`})
+                        console.log(file)
                         return file;
                     }
                     async function populate_formData(element_data){
                         // populate object with data
-                        console.log(element_data)
                         let data = new FormData();
                         data.append('id',element_id);
                         data.append('filepool',element_data['filepool']);
@@ -454,9 +452,20 @@ class AdminInterfaceHandler {
                         data.append('year',element_data['year']);
 
                         //porblem : blob isn't readable!!!
-                        const file = await fetch(element_data['file_path']).then(res=>res.blob()).then(blob=>showFile(blob,element_data['type'],element_data['display_name']));
-                        data.append('file_path',file);
-                        
+                        // try {
+                        //     var myHeaders = new Headers();
+                        //     myHeaders.append("Content-Type", `application/${element_data['type']}`);
+                        //     myHeaders.append("Content-Disposition",`attachement; filename=${element_data['display_name']}`);
+
+                        //     const file = await fetch(element_data['file_path'],{method:'GET',headers:myHeaders})
+                        //     console.log(file)
+
+                        //     .then(res=>res.blob())
+                        //     .then(blob=>showFile(blob,element_data['type'],element_data['display_name']));
+                        //     data.append('file_path',file);
+                        // } catch (error) {
+                        //     console.log(error);  
+                        // }
                         return data;
                     }
                     function populate_formHTML(element_data){
@@ -464,6 +473,7 @@ class AdminInterfaceHandler {
                         self.forms.FileForm.querySelector('#file_name').value = element_data['display_name'] ;
                         self.forms.FileForm.querySelector('#current_file').setAttribute('href' , element_data['file_path'])
                         self.forms.FileForm.querySelector('#current_file').innerText = element_data['file_path'].split('/').pop();
+                        self.forms.FileForm.querySelector('#file_path').value = element_data['file_path'];
                         self.forms.FileForm.querySelector('#year').value = element_data['year'];
                     }
                     async function f(event){
@@ -481,7 +491,7 @@ class AdminInterfaceHandler {
                         if (self.forms.FileForm.querySelector('#file_path').files[0]){
                             data.set('file_path',self.forms.FileForm.querySelector('#file_path').files[0]);
                         }
-
+                        console.log(data);
                         if (handle_file(data)){
                             M.toast({html:'File Updated successfully!',   classes:'green rounded' , displatLength:2000});
                         }
