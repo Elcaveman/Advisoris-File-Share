@@ -13,6 +13,8 @@ py -m pip install -r requirements.txt
 ```
 
 ## Usage
+Add a new file in the main folder:
+``` db.sqlite3 ```
 Before hosting make sure to disable [DEBUG] by setting it to [False] and set the [ALLOWED_HOSTS] varriable in the setting file
 ```python
 DEBUG = False
