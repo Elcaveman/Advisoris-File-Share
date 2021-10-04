@@ -1,6 +1,6 @@
-# Universias
+# Advisoris FS - Prototype ( No Ngnix setup / secure media files )
 
-Universias is a Website for scientific reasearchers made with the Django framework in Python.
+This project provides a solution to a data-sharing problem with users having read-only privileges in the form of a web app. See ReadME.PDF for the full case study.
 
 ## Installation
 You need to have [Python 3.8.2](https://www.python.org/)
